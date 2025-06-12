@@ -1,5 +1,3 @@
-# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
-
 # dependencies
 node_modules/
 
@@ -32,6 +30,28 @@ yarn-error.*
 
 # local env files
 .env*.local
+.env
 
 # typescript
 *.tsbuildinfo
+
+# Expo shared files
+.expo-shared/
+
+# Expo cache
+.expo/cache/
+.expo/web-build-cache/
+.expo/.virtual-metro-cache/
+
+# VSCode
+.vscode/
+
+# iOS & Android native folders (if you ever eject)
+ios/
+android/
+
+# Logs
+expo-debug.log*
+
+# System files
+Thumbs.db
