@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, SafeAreaView, ScrollView } from "react-native";
+import { Text, StyleSheet, SafeAreaView, ScrollView } from "react-native";
 import { useApp } from "../../contexts/AppContext";
 import { lightTheme, darkTheme } from "../../styles/theme";
 
