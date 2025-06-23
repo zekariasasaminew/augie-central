@@ -14,12 +14,13 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 
-import { useApp } from "../../contexts/AppContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { lightTheme, darkTheme, commonStyles } from "../../styles/theme";
-import { validateUserCredentials, isValidEmail } from "../../data/mockData";
+import { isValidEmail } from "../../data/mockData";
 
 const SignInScreen = ({ navigation }) => {
-  const { theme, login } = useApp();
+  const { signIn, loading: authLoading } = useAuth();
+  const theme = "light"; // You can implement theme switching later
   const currentTheme = theme === "light" ? lightTheme : darkTheme;
 
   const [email, setEmail] = useState("");
@@ -53,24 +54,16 @@ const SignInScreen = ({ navigation }) => {
     setLoading(true);
 
     try {
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const { error } = await signIn(email.trim(), password);
 
-      const user = validateUserCredentials(email.trim(), password);
-
-      if (user) {
-        login(user);
-      } else {
-        Alert.alert(
-          "Sign In Failed",
-          "Invalid email or password. Please try again.",
-          [{ text: "OK" }]
-        );
+      if (error) {
+        Alert.alert("Sign In Failed", error, [{ text: "OK" }]);
       }
+      // Success is handled automatically by AuthContext
     } catch (error) {
       Alert.alert(
         "Error",
-        "An error occurred during sign in. Please try again.",
+        "An unexpected error occurred during sign in. Please try again.",
         [{ text: "OK" }]
       );
     } finally {
@@ -118,7 +111,7 @@ const SignInScreen = ({ navigation }) => {
             </Text>
           </View>
 
-          {/* Demo Credentials Info */}
+          {/* Info */}
           <View style={styles.demoInfo}>
             <Text
               style={[
@@ -126,23 +119,7 @@ const SignInScreen = ({ navigation }) => {
                 { color: currentTheme.colors.textSecondary },
               ]}
             >
-              Demo Credentials:
-            </Text>
-            <Text
-              style={[
-                styles.demoText,
-                { color: currentTheme.colors.textSecondary },
-              ]}
-            >
-              Student: john.doe@augustana.edu / password123
-            </Text>
-            <Text
-              style={[
-                styles.demoText,
-                { color: currentTheme.colors.textSecondary },
-              ]}
-            >
-              Admin: admin@augustana.edu / admin123
+              Sign in with your Augustana email address and password.
             </Text>
           </View>
 
@@ -252,10 +229,10 @@ const SignInScreen = ({ navigation }) => {
               style={[
                 styles.signInButton,
                 { backgroundColor: currentTheme.colors.primary },
-                loading && styles.disabledButton,
+                (loading || authLoading) && styles.disabledButton,
               ]}
               onPress={handleSignIn}
-              disabled={loading}
+              disabled={loading || authLoading}
             >
               <Text
                 style={[
@@ -263,7 +240,7 @@ const SignInScreen = ({ navigation }) => {
                   { color: currentTheme.colors.background },
                 ]}
               >
-                {loading ? "Signing In..." : "Sign In"}
+                {loading || authLoading ? "Signing In..." : "Sign In"}
               </Text>
             </TouchableOpacity>
 

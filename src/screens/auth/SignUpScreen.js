@@ -14,12 +14,13 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 
-import { useApp } from "../../contexts/AppContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { lightTheme, darkTheme, commonStyles } from "../../styles/theme";
 import { isValidEmail, isAugustanaEmail } from "../../data/mockData";
 
 const SignUpScreen = ({ navigation }) => {
-  const { theme, login } = useApp();
+  const { signUp, loading: authLoading } = useAuth();
+  const theme = "light"; // You can implement theme switching later
   const currentTheme = theme === "light" ? lightTheme : darkTheme;
 
   const [formData, setFormData] = useState({
@@ -96,21 +97,25 @@ const SignUpScreen = ({ navigation }) => {
     setLoading(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const { error } = await signUp(
+        formData.email.trim(),
+        formData.password,
+        formData.name.trim()
+      );
 
-      const newUser = {
-        id: Date.now().toString(),
-        name: formData.name,
-        email: formData.email,
-        year: "Student",
-        major: "Undeclared",
-        isAdmin: false,
-      };
-
-      login(newUser);
-      Alert.alert("Success", "Account created successfully!");
+      if (error) {
+        Alert.alert("Sign Up Failed", error, [{ text: "OK" }]);
+      } else {
+        Alert.alert(
+          "Success",
+          "Account created successfully! Please check your email to verify your account.",
+          [{ text: "OK", onPress: () => navigation.goBack() }]
+        );
+      }
     } catch (error) {
-      Alert.alert("Error", "Please try again.");
+      Alert.alert("Error", "An unexpected error occurred. Please try again.", [
+        { text: "OK" },
+      ]);
     } finally {
       setLoading(false);
     }
@@ -453,10 +458,10 @@ const SignUpScreen = ({ navigation }) => {
               style={[
                 styles.signUpButton,
                 { backgroundColor: currentTheme.colors.primary },
-                loading && styles.disabledButton,
+                (loading || authLoading) && styles.disabledButton,
               ]}
               onPress={handleSignUp}
-              disabled={loading}
+              disabled={loading || authLoading}
             >
               <Text
                 style={[
@@ -464,7 +469,9 @@ const SignUpScreen = ({ navigation }) => {
                   { color: currentTheme.colors.background },
                 ]}
               >
-                {loading ? "Creating Account..." : "Create Account"}
+                {loading || authLoading
+                  ? "Creating Account..."
+                  : "Create Account"}
               </Text>
             </TouchableOpacity>
 
