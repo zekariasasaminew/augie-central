@@ -18,7 +18,7 @@ import { lightTheme, darkTheme } from "../../styles/theme";
 import { eventApi } from "../../supabase/api";
 
 const EventsScreen = ({ navigation }) => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const theme = "light"; // You can implement theme switching later
   const currentTheme = theme === "light" ? lightTheme : darkTheme;
 
@@ -442,7 +442,7 @@ const EventsScreen = ({ navigation }) => {
       </View>
 
       {/* Floating Action Button for Create Event */}
-      {user && (
+      {profile?.is_admin && (
         <TouchableOpacity
           style={[styles.fab, { backgroundColor: currentTheme.colors.primary }]}
           onPress={() => navigation.navigate("CreateEvent")}

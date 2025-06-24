@@ -8,8 +8,10 @@ import {
   SafeAreaView,
   Alert,
   ScrollView,
+  Platform,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 import { useAuth } from "../../contexts/AuthContext";
 import { lightTheme, darkTheme, commonStyles } from "../../styles/theme";
@@ -23,8 +25,12 @@ const CreateEventScreen = ({ navigation, route }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
+  const [startTime, setStartTime] = useState(new Date());
+  const [endTime, setEndTime] = useState(
+    new Date(Date.now() + 2 * 60 * 60 * 1000)
+  ); // 2 hours later
+  const [showStartPicker, setShowStartPicker] = useState(false);
+  const [showEndPicker, setShowEndPicker] = useState(false);
   const [organizations, setOrganizations] = useState([]);
   const [selectedOrgId, setSelectedOrgId] = useState(
     route?.params?.organizationId || ""
@@ -37,12 +43,13 @@ const CreateEventScreen = ({ navigation, route }) => {
 
   const loadOrganizations = async () => {
     try {
-      const { data } = await organizationApi.getUserOrganizations();
+      // Load all organizations for dropdown selection
+      const { data } = await organizationApi.getOrganizations();
       if (data) {
         setOrganizations(data);
-        // Only set the first org if no pre-selected org
-        if (!route?.params?.organizationId && data.length > 0) {
-          setSelectedOrgId(data[0].id);
+        // Only auto-select if coming from a specific organization
+        if (route?.params?.organizationId) {
+          setSelectedOrgId(route.params.organizationId);
         }
       }
     } catch (error) {
@@ -51,14 +58,22 @@ const CreateEventScreen = ({ navigation, route }) => {
   };
 
   const handleCreate = async () => {
-    if (
-      !title.trim() ||
-      !location.trim() ||
-      !startTime ||
-      !endTime ||
-      !selectedOrgId
-    ) {
+    const isFromOrgTab = !!route?.params?.organizationId;
+
+    if (!title.trim() || !location.trim()) {
       Alert.alert("Error", "Please fill in all required fields");
+      return;
+    }
+
+    // Validate dates
+    if (endTime <= startTime) {
+      Alert.alert("Error", "End time must be after start time");
+      return;
+    }
+
+    // Organization is required only when coming from organization tab
+    if (isFromOrgTab && !selectedOrgId) {
+      Alert.alert("Error", "Organization is required");
       return;
     }
 
@@ -68,9 +83,9 @@ const CreateEventScreen = ({ navigation, route }) => {
         title: title.trim(),
         description: description.trim() || null,
         location: location.trim(),
-        start_time: startTime,
-        end_time: endTime,
-        organization_id: selectedOrgId,
+        start_time: startTime.toISOString(),
+        end_time: endTime.toISOString(),
+        organization_id: selectedOrgId || null,
         requires_rsvp: true,
       });
 
@@ -85,6 +100,36 @@ const CreateEventScreen = ({ navigation, route }) => {
       Alert.alert("Error", "Failed to create event");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const formatDateTime = (date) => {
+    return date.toLocaleString("en-US", {
+      weekday: "short",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+
+  const onStartTimeChange = (event, selectedDate) => {
+    setShowStartPicker(Platform.OS === "ios");
+    if (selectedDate) {
+      setStartTime(selectedDate);
+      // Auto-adjust end time to be 2 hours later if it's before the new start time
+      if (endTime <= selectedDate) {
+        setEndTime(new Date(selectedDate.getTime() + 2 * 60 * 60 * 1000));
+      }
+    }
+  };
+
+  const onEndTimeChange = (event, selectedDate) => {
+    setShowEndPicker(Platform.OS === "ios");
+    if (selectedDate) {
+      setEndTime(selectedDate);
     }
   };
 
@@ -168,42 +213,112 @@ const CreateEventScreen = ({ navigation, route }) => {
           <Text style={[styles.label, { color: currentTheme.colors.text }]}>
             Start Time *
           </Text>
-          <TextInput
+          <TouchableOpacity
             style={[
               styles.input,
+              styles.dateButton,
               {
-                color: currentTheme.colors.text,
                 borderColor: currentTheme.colors.border,
+                backgroundColor: currentTheme.colors.surface,
               },
             ]}
-            value={startTime}
-            onChangeText={setStartTime}
-            placeholder="2024-12-25T14:00:00"
-            placeholderTextColor={currentTheme.colors.textSecondary}
-          />
+            onPress={() => setShowStartPicker(true)}
+          >
+            <MaterialIcons
+              name="schedule"
+              size={20}
+              color={currentTheme.colors.textSecondary}
+            />
+            <Text
+              style={[
+                styles.dateButtonText,
+                { color: currentTheme.colors.text },
+              ]}
+            >
+              {formatDateTime(startTime)}
+            </Text>
+          </TouchableOpacity>
 
           <Text style={[styles.label, { color: currentTheme.colors.text }]}>
             End Time *
           </Text>
-          <TextInput
+          <TouchableOpacity
             style={[
               styles.input,
+              styles.dateButton,
               {
-                color: currentTheme.colors.text,
                 borderColor: currentTheme.colors.border,
+                backgroundColor: currentTheme.colors.surface,
               },
             ]}
-            value={endTime}
-            onChangeText={setEndTime}
-            placeholder="2024-12-25T16:00:00"
-            placeholderTextColor={currentTheme.colors.textSecondary}
-          />
+            onPress={() => setShowEndPicker(true)}
+          >
+            <MaterialIcons
+              name="schedule"
+              size={20}
+              color={currentTheme.colors.textSecondary}
+            />
+            <Text
+              style={[
+                styles.dateButtonText,
+                { color: currentTheme.colors.text },
+              ]}
+            >
+              {formatDateTime(endTime)}
+            </Text>
+          </TouchableOpacity>
+
+          {showStartPicker && (
+            <DateTimePicker
+              value={startTime}
+              mode="datetime"
+              display={Platform.OS === "ios" ? "spinner" : "default"}
+              onChange={onStartTimeChange}
+              minimumDate={new Date()}
+            />
+          )}
+
+          {showEndPicker && (
+            <DateTimePicker
+              value={endTime}
+              mode="datetime"
+              display={Platform.OS === "ios" ? "spinner" : "default"}
+              onChange={onEndTimeChange}
+              minimumDate={startTime}
+            />
+          )}
 
           <Text style={[styles.label, { color: currentTheme.colors.text }]}>
-            Organization *
+            Organization {route?.params?.organizationId ? "*" : "(Optional)"}
           </Text>
           {organizations.length > 0 ? (
             <View>
+              {!route?.params?.organizationId && (
+                <TouchableOpacity
+                  style={[
+                    styles.orgOption,
+                    {
+                      backgroundColor:
+                        selectedOrgId === ""
+                          ? currentTheme.colors.primary
+                          : currentTheme.colors.surface,
+                      borderColor: currentTheme.colors.border,
+                    },
+                  ]}
+                  onPress={() => setSelectedOrgId("")}
+                >
+                  <Text
+                    style={{
+                      color:
+                        selectedOrgId === ""
+                          ? "white"
+                          : currentTheme.colors.text,
+                    }}
+                  >
+                    No Organization (Independent Event)
+                  </Text>
+                </TouchableOpacity>
+              )}
               {organizations.map((org) => (
                 <TouchableOpacity
                   key={org.id}
@@ -234,7 +349,7 @@ const CreateEventScreen = ({ navigation, route }) => {
             </View>
           ) : (
             <Text style={{ color: currentTheme.colors.textSecondary }}>
-              You need to join an organization first
+              No organizations available
             </Text>
           )}
 
@@ -290,6 +405,15 @@ const styles = StyleSheet.create({
   textArea: {
     height: 100,
     textAlignVertical: "top",
+  },
+  dateButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  dateButtonText: {
+    fontSize: 16,
+    flex: 1,
   },
   orgOption: {
     padding: 12,

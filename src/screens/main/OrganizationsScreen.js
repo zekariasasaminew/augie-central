@@ -18,7 +18,7 @@ import { organizationApi } from "../../supabase/api";
 import { organizationCategories } from "../../data/mockData";
 
 const OrganizationsScreen = ({ navigation }) => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const theme = "light"; // You can implement theme switching later
   const currentTheme = theme === "light" ? lightTheme : darkTheme;
 
@@ -233,7 +233,7 @@ const OrganizationsScreen = ({ navigation }) => {
             </Text>
           </TouchableOpacity>
 
-          {item.user_is_member && (
+          {item.user_is_member && profile?.is_admin && (
             <TouchableOpacity
               style={[
                 styles.createEventButton,

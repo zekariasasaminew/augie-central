@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,14 +11,41 @@ import {
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { useAuth } from "../../contexts/AuthContext";
 import { lightTheme, darkTheme } from "../../styles/theme";
 
 const ProfileScreen = () => {
   const { user, profile, signOut } = useAuth();
-  const theme = "light"; // You can implement theme switching later
+  const [theme, setTheme] = useState("light");
   const currentTheme = theme === "light" ? lightTheme : darkTheme;
+
+  // Load theme from storage on mount
+  useEffect(() => {
+    loadTheme();
+  }, []);
+
+  const loadTheme = async () => {
+    try {
+      const savedTheme = await AsyncStorage.getItem("theme");
+      if (savedTheme) {
+        setTheme(savedTheme);
+      }
+    } catch (error) {
+      console.error("Error loading theme:", error);
+    }
+  };
+
+  const toggleTheme = async () => {
+    const newTheme = theme === "light" ? "dark" : "light";
+    setTheme(newTheme);
+    try {
+      await AsyncStorage.setItem("theme", newTheme);
+    } catch (error) {
+      console.error("Error saving theme:", error);
+    }
+  };
 
   const handleLogout = () => {
     Alert.alert("Sign Out", "Are you sure you want to sign out?", [
@@ -65,13 +93,10 @@ const ProfileScreen = () => {
             { backgroundColor: currentTheme.colors.card },
           ]}
         >
-          <TouchableOpacity
-            style={styles.settingItem}
-            onPress={() => Alert.alert("Theme", "Theme switching coming soon!")}
-          >
+          <View style={styles.settingItem}>
             <View style={styles.settingLeft}>
               <MaterialIcons
-                name="palette"
+                name={theme === "dark" ? "dark-mode" : "light-mode"}
                 size={24}
                 color={currentTheme.colors.primary}
               />
@@ -81,15 +106,19 @@ const ProfileScreen = () => {
                   { color: currentTheme.colors.text },
                 ]}
               >
-                Theme Settings
+                Dark Mode
               </Text>
             </View>
-            <MaterialIcons
-              name="chevron-right"
-              size={20}
-              color={currentTheme.colors.textSecondary}
+            <Switch
+              value={theme === "dark"}
+              onValueChange={toggleTheme}
+              trackColor={{
+                false: currentTheme.colors.border,
+                true: currentTheme.colors.primary,
+              }}
+              thumbColor={currentTheme.colors.card}
             />
-          </TouchableOpacity>
+          </View>
 
           <TouchableOpacity
             style={styles.settingItem}
