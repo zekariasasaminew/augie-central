@@ -4,7 +4,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { MaterialIcons } from "@expo/vector-icons";
 import { View, ActivityIndicator } from "react-native";
 
-import { useApp } from "../contexts/AppContext";
+import { useAuth } from "../contexts/AuthContext";
 
 // Auth Screens
 import SignInScreen from "../screens/auth/SignInScreen";
@@ -145,10 +145,10 @@ const AppStack = () => {
 
 // Navigation wrapper with context check
 const NavigationWrapper = () => {
-  const context = useApp();
+  const { user, loading } = useAuth();
 
   // If context is not available yet, show loading
-  if (!context || context.isLoading) {
+  if (loading) {
     return (
       <View
         style={{
@@ -163,7 +163,7 @@ const NavigationWrapper = () => {
     );
   }
 
-  const { isAuthenticated } = context;
+  const isAuthenticated = !!user;
 
   return (
     <NavigationContainer>

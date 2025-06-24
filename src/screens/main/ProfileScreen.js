@@ -11,17 +11,18 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 
-import { useApp } from "../../contexts/AppContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { lightTheme, darkTheme } from "../../styles/theme";
 
 const ProfileScreen = () => {
-  const { theme, user, logout, toggleTheme } = useApp();
+  const { user, profile, signOut } = useAuth();
+  const theme = "light"; // You can implement theme switching later
   const currentTheme = theme === "light" ? lightTheme : darkTheme;
 
   const handleLogout = () => {
     Alert.alert("Sign Out", "Are you sure you want to sign out?", [
       { text: "Cancel", style: "cancel" },
-      { text: "Sign Out", style: "destructive", onPress: logout },
+      { text: "Sign Out", style: "destructive", onPress: signOut },
     ]);
   };
 
@@ -44,16 +45,16 @@ const ProfileScreen = () => {
             ]}
           >
             <Text style={styles.avatarText}>
-              {user?.name?.charAt(0) || "U"}
+              {(profile?.name || user?.user_metadata?.name)?.charAt(0) || "U"}
             </Text>
           </View>
           <Text style={[styles.name, { color: currentTheme.colors.text }]}>
-            {user?.name || "Student Name"}
+            {profile?.name || user?.user_metadata?.name || "Student Name"}
           </Text>
           <Text
             style={[styles.email, { color: currentTheme.colors.textSecondary }]}
           >
-            {user?.email || "student@augustana.edu"}
+            {profile?.email || user?.email || "student@augustana.edu"}
           </Text>
         </View>
 
@@ -64,10 +65,13 @@ const ProfileScreen = () => {
             { backgroundColor: currentTheme.colors.card },
           ]}
         >
-          <View style={styles.settingItem}>
+          <TouchableOpacity
+            style={styles.settingItem}
+            onPress={() => Alert.alert("Theme", "Theme switching coming soon!")}
+          >
             <View style={styles.settingLeft}>
               <MaterialIcons
-                name={theme === "dark" ? "dark-mode" : "light-mode"}
+                name="palette"
                 size={24}
                 color={currentTheme.colors.primary}
               />
@@ -77,19 +81,15 @@ const ProfileScreen = () => {
                   { color: currentTheme.colors.text },
                 ]}
               >
-                Dark Mode
+                Theme Settings
               </Text>
             </View>
-            <Switch
-              value={theme === "dark"}
-              onValueChange={toggleTheme}
-              trackColor={{
-                false: currentTheme.colors.border,
-                true: currentTheme.colors.primary,
-              }}
-              thumbColor={currentTheme.colors.card}
+            <MaterialIcons
+              name="chevron-right"
+              size={20}
+              color={currentTheme.colors.textSecondary}
             />
-          </View>
+          </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.settingItem}

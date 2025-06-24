@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -8,21 +8,48 @@ import {
   SafeAreaView,
   Alert,
   ScrollView,
+  RefreshControl,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 
-import { useApp } from "../../contexts/AppContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { lightTheme, darkTheme } from "../../styles/theme";
-import { mockEvents } from "../../data/mockData";
+import { eventApi } from "../../supabase/api";
 
 const EventsScreen = () => {
-  const { theme } = useApp();
+  const { user } = useAuth();
+  const theme = "light"; // You can implement theme switching later
   const currentTheme = theme === "light" ? lightTheme : darkTheme;
 
-  const [events, setEvents] = useState(mockEvents);
+  const [events, setEvents] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const loadEvents = useCallback(async () => {
+    try {
+      const result = await eventApi.getEvents(1, 20);
+      if (result.data) {
+        setEvents(result.data);
+      }
+    } catch (error) {
+      console.error("Error loading events:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await loadEvents();
+    setRefreshing(false);
+  }, [loadEvents]);
+
+  useEffect(() => {
+    loadEvents();
+  }, [loadEvents]);
 
   // Get today's date
   const today = new Date();
@@ -30,43 +57,77 @@ const EventsScreen = () => {
 
   // Filter events based on selected date or show today's events
   const filteredEvents = selectedDate
-    ? events.filter((event) => event.date === selectedDate)
-    : events.filter((event) => event.date >= todayString);
+    ? events.filter((event) => {
+        const eventDate = new Date(event.start_time)
+          .toISOString()
+          .split("T")[0];
+        return eventDate === selectedDate;
+      })
+    : events.filter((event) => {
+        const eventDate = new Date(event.start_time)
+          .toISOString()
+          .split("T")[0];
+        return eventDate >= todayString;
+      });
 
-  const handleRSVP = (event) => {
-    Alert.alert(
-      "RSVP",
-      `Would you like to ${
-        event.isRSVPed ? "cancel your RSVP for" : "RSVP to"
-      } ${event.title}?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: event.isRSVPed ? "Cancel RSVP" : "RSVP",
-          onPress: () => {
-            setEvents((prev) =>
-              prev.map((e) =>
-                e.id === event.id
-                  ? {
-                      ...e,
-                      isRSVPed: !e.isRSVPed,
-                      attendeeCount: e.isRSVPed
-                        ? e.attendeeCount - 1
-                        : e.attendeeCount + 1,
-                    }
-                  : e
-              )
-            );
+  const handleRSVP = async (event) => {
+    if (!user) {
+      Alert.alert(
+        "Authentication Required",
+        "Please sign in to RSVP to events."
+      );
+      return;
+    }
+
+    const action = event.user_has_rsvped ? "cancel your RSVP for" : "RSVP to";
+    const actionText = event.user_has_rsvped ? "Cancel RSVP" : "RSVP";
+
+    Alert.alert("RSVP", `Would you like to ${action} ${event.title}?`, [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: actionText,
+        onPress: async () => {
+          try {
+            let result;
+            if (event.user_has_rsvped) {
+              result = await eventApi.cancelRSVP(event.id);
+            } else {
+              result = await eventApi.rsvpToEvent(event.id);
+            }
+
+            if (result.error) {
+              Alert.alert("Error", result.error);
+            } else {
+              // Update local state
+              setEvents((prev) =>
+                prev.map((e) =>
+                  e.id === event.id
+                    ? {
+                        ...e,
+                        user_has_rsvped: !e.user_has_rsvped,
+                        rsvp_count: e.user_has_rsvped
+                          ? e.rsvp_count - 1
+                          : e.rsvp_count + 1,
+                      }
+                    : e
+                )
+              );
+              Alert.alert(
+                "Success",
+                `You have ${
+                  event.user_has_rsvped ? "cancelled your RSVP" : "RSVP'd"
+                } for ${event.title}!`
+              );
+            }
+          } catch (error) {
             Alert.alert(
-              "Success",
-              `You have ${
-                event.isRSVPed ? "cancelled your RSVP" : "RSVP'd"
-              } for ${event.title}!`
+              "Error",
+              "An unexpected error occurred. Please try again."
             );
-          },
+          }
         },
-      ]
-    );
+      },
+    ]);
   };
 
   const formatDate = (dateString) => {
@@ -78,9 +139,18 @@ const EventsScreen = () => {
     });
   };
 
+  const formatTime = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+
   const getStatusColor = (event) => {
-    if (event.isRSVPed) return currentTheme.colors.success;
-    const eventDate = new Date(event.date);
+    if (event.user_has_rsvped) return currentTheme.colors.success;
+    const eventDate = new Date(event.start_time);
     const today = new Date();
     if (eventDate < today) return currentTheme.colors.textSecondary;
     return currentTheme.colors.primary;
@@ -98,7 +168,7 @@ const EventsScreen = () => {
               { color: currentTheme.colors.primary },
             ]}
           >
-            {formatDate(item.date)}
+            {formatDate(item.start_time)}
           </Text>
           <View
             style={[
@@ -120,7 +190,7 @@ const EventsScreen = () => {
               { color: currentTheme.colors.textSecondary },
             ]}
           >
-            {item.category}
+            {item.student_organizations?.name || "Event"}
           </Text>
         </View>
       </View>
@@ -135,7 +205,7 @@ const EventsScreen = () => {
           { color: currentTheme.colors.textSecondary },
         ]}
       >
-        {item.description}
+        {item.description || "No description available"}
       </Text>
 
       <View style={styles.eventDetails}>
@@ -151,7 +221,7 @@ const EventsScreen = () => {
               { color: currentTheme.colors.textSecondary },
             ]}
           >
-            {item.time}
+            {formatTime(item.start_time)} - {formatTime(item.end_time)}
           </Text>
         </View>
 
@@ -185,26 +255,26 @@ const EventsScreen = () => {
               { color: currentTheme.colors.textSecondary },
             ]}
           >
-            {item.attendeeCount}/{item.maxAttendees} attending
+            {item.rsvp_count || 0} attending
           </Text>
         </View>
 
         <TouchableOpacity
           style={[
             styles.rsvpButton,
-            item.isRSVPed
+            item.user_has_rsvped
               ? { backgroundColor: currentTheme.colors.success }
               : { backgroundColor: currentTheme.colors.primary },
           ]}
           onPress={() => handleRSVP(item)}
         >
           <MaterialIcons
-            name={item.isRSVPed ? "check" : "add"}
+            name={item.user_has_rsvped ? "check" : "add"}
             size={16}
             color="white"
           />
           <Text style={styles.rsvpButtonText}>
-            {item.isRSVPed ? "RSVP'd" : "RSVP"}
+            {item.user_has_rsvped ? "RSVP'd" : "RSVP"}
           </Text>
         </TouchableOpacity>
       </View>
@@ -336,6 +406,14 @@ const EventsScreen = () => {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.eventsContainer}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={currentTheme.colors.primary}
+              colors={[currentTheme.colors.primary]}
+            />
+          }
           ListEmptyComponent={() => (
             <View style={styles.emptyState}>
               <MaterialIcons

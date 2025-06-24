@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -7,51 +7,112 @@ import {
   StyleSheet,
   SafeAreaView,
   Alert,
+  RefreshControl,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 
-import { useApp } from "../../contexts/AppContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { lightTheme, darkTheme } from "../../styles/theme";
-import { mockOrganizations, organizationCategories } from "../../data/mockData";
+import { organizationApi } from "../../supabase/api";
+import { organizationCategories } from "../../data/mockData";
 
 const OrganizationsScreen = () => {
-  const { theme } = useApp();
+  const { user } = useAuth();
+  const theme = "light"; // You can implement theme switching later
   const currentTheme = theme === "light" ? lightTheme : darkTheme;
 
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [organizations, setOrganizations] = useState(mockOrganizations);
+  const [organizations, setOrganizations] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const loadOrganizations = useCallback(async () => {
+    try {
+      const { data, error } = await organizationApi.getOrganizations();
+      if (data && !error) {
+        setOrganizations(data);
+      } else {
+        console.error("Error loading organizations:", error);
+      }
+    } catch (error) {
+      console.error("Error loading organizations:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await loadOrganizations();
+    setRefreshing(false);
+  }, [loadOrganizations]);
+
+  useEffect(() => {
+    loadOrganizations();
+  }, [loadOrganizations]);
 
   const filteredOrganizations = organizations.filter(
     (org) => selectedCategory === "all" || org.category === selectedCategory
   );
 
-  const handleJoinOrganization = (org) => {
-    Alert.alert("Join Organization", `Would you like to join ${org.name}?`, [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Join",
-        onPress: () => {
-          setOrganizations((prev) =>
-            prev.map((o) =>
-              o.id === org.id
-                ? {
-                    ...o,
-                    isJoined: !o.isJoined,
-                    memberCount: o.isJoined
-                      ? o.memberCount - 1
-                      : o.memberCount + 1,
-                  }
-                : o
-            )
-          );
-          Alert.alert(
-            "Success",
-            `You have ${org.isJoined ? "left" : "joined"} ${org.name}!`
-          );
+  const handleJoinOrganization = async (org) => {
+    if (!user) {
+      Alert.alert(
+        "Authentication Required",
+        "Please sign in to join organizations."
+      );
+      return;
+    }
+
+    const action = org.user_is_member ? "leave" : "join";
+    const actionText = org.user_is_member ? "Leave" : "Join";
+
+    Alert.alert(
+      `${actionText} Organization`,
+      `Would you like to ${action} ${org.name}?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: actionText,
+          onPress: async () => {
+            try {
+              let result;
+              if (org.user_is_member) {
+                result = await organizationApi.leaveOrganization(org.id);
+              } else {
+                result = await organizationApi.joinOrganization(org.id);
+              }
+
+              if (result.error) {
+                Alert.alert("Error", result.error);
+              } else {
+                // Update local state
+                setOrganizations((prev) =>
+                  prev.map((o) =>
+                    o.id === org.id
+                      ? {
+                          ...o,
+                          user_is_member: !o.user_is_member,
+                          member_count: o.user_is_member
+                            ? o.member_count - 1
+                            : o.member_count + 1,
+                        }
+                      : o
+                  )
+                );
+                Alert.alert("Success", `You have ${action}ed ${org.name}!`);
+              }
+            } catch (error) {
+              Alert.alert(
+                "Error",
+                "An unexpected error occurred. Please try again."
+              );
+            }
+          },
         },
-      },
-    ]);
+      ]
+    );
   };
 
   const renderCategory = ({ item }) => (
@@ -140,14 +201,14 @@ const OrganizationsScreen = () => {
               { color: currentTheme.colors.textSecondary },
             ]}
           >
-            {item.memberCount} members
+            {item.member_count} members
           </Text>
         </View>
 
         <TouchableOpacity
           style={[
             styles.joinButton,
-            item.isJoined
+            item.user_is_member
               ? {
                   backgroundColor: currentTheme.colors.surface,
                   borderColor: currentTheme.colors.border,
@@ -160,10 +221,12 @@ const OrganizationsScreen = () => {
           <Text
             style={[
               styles.joinButtonText,
-              { color: item.isJoined ? currentTheme.colors.text : "white" },
+              {
+                color: item.user_is_member ? currentTheme.colors.text : "white",
+              },
             ]}
           >
-            {item.isJoined ? "Joined" : "Join"}
+            {item.user_is_member ? "Joined" : "Join"}
           </Text>
         </TouchableOpacity>
       </View>
@@ -212,6 +275,14 @@ const OrganizationsScreen = () => {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.organizationsContainer}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={currentTheme.colors.primary}
+              colors={[currentTheme.colors.primary]}
+            />
+          }
         />
       </View>
     </SafeAreaView>

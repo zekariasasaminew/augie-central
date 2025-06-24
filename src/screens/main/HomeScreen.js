@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   View,
   Text,
@@ -13,24 +13,41 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 
-import { useApp } from "../../contexts/AppContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { lightTheme, darkTheme, commonStyles } from "../../styles/theme";
-import { mockAnnouncements } from "../../data/mockData";
+import { announcementApi } from "../../supabase/api";
 
 const HomeScreen = ({ navigation }) => {
-  const { theme, user } = useApp();
+  const { user, profile } = useAuth();
+  const theme = "light"; // You can implement theme switching later
   const currentTheme = theme === "light" ? lightTheme : darkTheme;
 
-  const [announcements, setAnnouncements] = useState(mockAnnouncements);
+  const [announcements, setAnnouncements] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const loadAnnouncements = useCallback(async () => {
+    try {
+      const result = await announcementApi.getAnnouncements(1, 10);
+      if (result.data) {
+        setAnnouncements(result.data);
+      }
+    } catch (error) {
+      console.error("Error loading announcements:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setAnnouncements(mockAnnouncements);
+    await loadAnnouncements();
     setRefreshing(false);
-  }, []);
+  }, [loadAnnouncements]);
+
+  useEffect(() => {
+    loadAnnouncements();
+  }, [loadAnnouncements]);
 
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString("en-US", {
@@ -42,7 +59,7 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const handleCreateAnnouncement = () => {
-    if (!user?.isAdmin) {
+    if (!profile?.is_admin) {
       Alert.alert(
         "Access Restricted",
         "Only verified Office of Student Life accounts can post announcements.",
@@ -65,14 +82,6 @@ const HomeScreen = ({ navigation }) => {
       }
       activeOpacity={0.7}
     >
-      {item.imageUrl && (
-        <Image
-          source={{ uri: item.imageUrl }}
-          style={styles.cardImage}
-          resizeMode="cover"
-        />
-      )}
-
       <View style={styles.cardContent}>
         <View style={styles.cardHeader}>
           <View style={styles.authorContainer}>
@@ -87,7 +96,7 @@ const HomeScreen = ({ navigation }) => {
                 { color: currentTheme.colors.primary },
               ]}
             >
-              {item.author}
+              {item.profiles?.name || "Office of Student Life"}
             </Text>
           </View>
           <Text
@@ -96,7 +105,7 @@ const HomeScreen = ({ navigation }) => {
               { color: currentTheme.colors.textSecondary },
             ]}
           >
-            {formatDate(item.date)}
+            {formatDate(item.created_at)}
           </Text>
         </View>
 
@@ -111,29 +120,8 @@ const HomeScreen = ({ navigation }) => {
           ]}
           numberOfLines={3}
         >
-          {item.description}
+          {item.content}
         </Text>
-
-        <View style={styles.tagsContainer}>
-          {item.tags.slice(0, 3).map((tag, index) => (
-            <View
-              key={index}
-              style={[
-                styles.tag,
-                { backgroundColor: currentTheme.colors.surface },
-              ]}
-            >
-              <Text
-                style={[
-                  styles.tagText,
-                  { color: currentTheme.colors.textSecondary },
-                ]}
-              >
-                {tag}
-              </Text>
-            </View>
-          ))}
-        </View>
 
         <View style={styles.cardFooter}>
           <MaterialIcons
@@ -166,7 +154,7 @@ const HomeScreen = ({ navigation }) => {
           Welcome back,
         </Text>
         <Text style={[styles.nameText, { color: currentTheme.colors.text }]}>
-          {user?.name || "Student"}!
+          {profile?.name || user?.user_metadata?.name || "Student"}!
         </Text>
       </View>
 
@@ -230,7 +218,7 @@ const HomeScreen = ({ navigation }) => {
         >
           Latest Announcements
         </Text>
-        {user?.isAdmin && (
+        {profile?.is_admin && (
           <TouchableOpacity
             style={[
               styles.addButton,
