@@ -17,7 +17,7 @@ import { lightTheme, darkTheme } from "../../styles/theme";
 import { organizationApi } from "../../supabase/api";
 import { organizationCategories } from "../../data/mockData";
 
-const OrganizationsScreen = () => {
+const OrganizationsScreen = ({ navigation }) => {
   const { user } = useAuth();
   const theme = "light"; // You can implement theme switching later
   const currentTheme = theme === "light" ? lightTheme : darkTheme;
@@ -205,30 +205,49 @@ const OrganizationsScreen = () => {
           </Text>
         </View>
 
-        <TouchableOpacity
-          style={[
-            styles.joinButton,
-            item.user_is_member
-              ? {
-                  backgroundColor: currentTheme.colors.surface,
-                  borderColor: currentTheme.colors.border,
-                  borderWidth: 1,
-                }
-              : { backgroundColor: currentTheme.colors.primary },
-          ]}
-          onPress={() => handleJoinOrganization(item)}
-        >
-          <Text
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
             style={[
-              styles.joinButtonText,
-              {
-                color: item.user_is_member ? currentTheme.colors.text : "white",
-              },
+              styles.joinButton,
+              item.user_is_member
+                ? {
+                    backgroundColor: currentTheme.colors.surface,
+                    borderColor: currentTheme.colors.border,
+                    borderWidth: 1,
+                  }
+                : { backgroundColor: currentTheme.colors.primary },
             ]}
+            onPress={() => handleJoinOrganization(item)}
           >
-            {item.user_is_member ? "Joined" : "Join"}
-          </Text>
-        </TouchableOpacity>
+            <Text
+              style={[
+                styles.joinButtonText,
+                {
+                  color: item.user_is_member
+                    ? currentTheme.colors.text
+                    : "white",
+                },
+              ]}
+            >
+              {item.user_is_member ? "Joined" : "Join"}
+            </Text>
+          </TouchableOpacity>
+
+          {item.user_is_member && (
+            <TouchableOpacity
+              style={[
+                styles.createEventButton,
+                { backgroundColor: currentTheme.colors.secondary },
+              ]}
+              onPress={() =>
+                navigation.navigate("CreateEvent", { organizationId: item.id })
+              }
+            >
+              <MaterialIcons name="add-circle" size={16} color="white" />
+              <Text style={styles.createEventButtonText}>Create Event</Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
     </View>
   );
@@ -383,6 +402,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "500",
   },
+  buttonContainer: {
+    flexDirection: "row",
+    gap: 8,
+    alignItems: "center",
+  },
   joinButton: {
     paddingHorizontal: 24,
     paddingVertical: 8,
@@ -390,6 +414,19 @@ const styles = StyleSheet.create({
   },
   joinButtonText: {
     fontSize: 14,
+    fontWeight: "600",
+  },
+  createEventButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    gap: 4,
+  },
+  createEventButtonText: {
+    color: "white",
+    fontSize: 12,
     fontWeight: "600",
   },
 });

@@ -67,11 +67,7 @@ const HomeScreen = ({ navigation }) => {
       );
       return;
     }
-    // Navigate to create announcement screen (would be implemented)
-    Alert.alert(
-      "Feature Coming Soon",
-      "Create announcement feature will be available soon!"
-    );
+    navigation.navigate("CreateAnnouncement");
   };
 
   const renderAnnouncementCard = ({ item }) => (

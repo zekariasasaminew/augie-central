@@ -17,7 +17,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { lightTheme, darkTheme } from "../../styles/theme";
 import { eventApi } from "../../supabase/api";
 
-const EventsScreen = () => {
+const EventsScreen = ({ navigation }) => {
   const { user } = useAuth();
   const theme = "light"; // You can implement theme switching later
   const currentTheme = theme === "light" ? lightTheme : darkTheme;
@@ -440,6 +440,16 @@ const EventsScreen = () => {
           )}
         />
       </View>
+
+      {/* Floating Action Button for Create Event */}
+      {user && (
+        <TouchableOpacity
+          style={[styles.fab, { backgroundColor: currentTheme.colors.primary }]}
+          onPress={() => navigation.navigate("CreateEvent")}
+        >
+          <MaterialIcons name="add" size={24} color="white" />
+        </TouchableOpacity>
+      )}
     </SafeAreaView>
   );
 };
@@ -594,6 +604,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: "center",
     lineHeight: 20,
+  },
+  fab: {
+    position: "absolute",
+    bottom: 100,
+    right: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
   },
 });
 

@@ -21,6 +21,10 @@ import AnnouncementDetailScreen from "../screens/details/AnnouncementDetailScree
 import OrganizationDetailScreen from "../screens/details/OrganizationDetailScreen";
 import EventDetailScreen from "../screens/details/EventDetailScreen";
 
+// Admin Screens
+import CreateAnnouncementScreen from "../screens/admin/CreateAnnouncementScreen";
+import CreateEventScreen from "../screens/admin/CreateEventScreen";
+
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -136,6 +140,22 @@ const AppStack = () => {
         component={EventDetailScreen}
         options={{
           title: "Event Details",
+          presentation: "modal",
+        }}
+      />
+      <Stack.Screen
+        name="CreateAnnouncement"
+        component={CreateAnnouncementScreen}
+        options={{
+          title: "Create Announcement",
+          presentation: "modal",
+        }}
+      />
+      <Stack.Screen
+        name="CreateEvent"
+        component={CreateEventScreen}
+        options={{
+          title: "Create Event",
           presentation: "modal",
         }}
       />
