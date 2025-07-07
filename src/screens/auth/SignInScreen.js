@@ -10,6 +10,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Modal,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
@@ -17,6 +18,7 @@ import { StatusBar } from "expo-status-bar";
 import { useAuth } from "../../contexts/AuthContext";
 import { lightTheme, darkTheme, commonStyles } from "../../styles/theme";
 import { isValidEmail } from "../../data/mockData";
+import { authApi } from "../../supabase/api";
 
 const SignInScreen = ({ navigation }) => {
   const { signIn, loading: authLoading } = useAuth();
@@ -28,6 +30,11 @@ const SignInScreen = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+
+  // Forgot password modal state
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetLoading, setResetLoading] = useState(false);
 
   const validateForm = () => {
     const newErrors = {};
@@ -68,6 +75,48 @@ const SignInScreen = ({ navigation }) => {
       );
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!resetEmail.trim()) {
+      Alert.alert("Email Required", "Please enter your email address");
+      return;
+    }
+
+    if (!isValidEmail(resetEmail)) {
+      Alert.alert("Invalid Email", "Please enter a valid email address");
+      return;
+    }
+
+    setResetLoading(true);
+
+    try {
+      const { error } = await authApi.resetPassword(resetEmail.trim());
+
+      if (error) {
+        Alert.alert("Reset Failed", error);
+      } else {
+        Alert.alert(
+          "Reset Email Sent",
+          "Check your email for password reset instructions.",
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                setShowForgotPassword(false);
+                setResetEmail("");
+              },
+            },
+          ]
+        );
+      }
+    } catch (error) {
+      Alert.alert("Error", "An unexpected error occurred. Please try again.", [
+        { text: "OK" },
+      ]);
+    } finally {
+      setResetLoading(false);
     }
   };
 
@@ -224,6 +273,21 @@ const SignInScreen = ({ navigation }) => {
               )}
             </View>
 
+            {/* Forgot Password Link */}
+            <TouchableOpacity
+              onPress={() => setShowForgotPassword(true)}
+              style={styles.forgotPasswordContainer}
+            >
+              <Text
+                style={[
+                  styles.forgotPasswordText,
+                  { color: currentTheme.colors.primary },
+                ]}
+              >
+                Forgot Password?
+              </Text>
+            </TouchableOpacity>
+
             {/* Sign In Button */}
             <TouchableOpacity
               style={[
@@ -268,6 +332,123 @@ const SignInScreen = ({ navigation }) => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Forgot Password Modal */}
+      <Modal
+        visible={showForgotPassword}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowForgotPassword(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View
+            style={[
+              styles.modalContent,
+              { backgroundColor: currentTheme.colors.card },
+            ]}
+          >
+            <View style={styles.modalHeader}>
+              <Text
+                style={[styles.modalTitle, { color: currentTheme.colors.text }]}
+              >
+                Reset Password
+              </Text>
+              <TouchableOpacity
+                onPress={() => setShowForgotPassword(false)}
+                style={styles.modalCloseButton}
+              >
+                <MaterialIcons
+                  name="close"
+                  size={24}
+                  color={currentTheme.colors.textSecondary}
+                />
+              </TouchableOpacity>
+            </View>
+
+            <Text
+              style={[
+                styles.modalDescription,
+                { color: currentTheme.colors.textSecondary },
+              ]}
+            >
+              Enter your email address and we'll send you a link to reset your
+              password.
+            </Text>
+
+            <View style={styles.modalInputContainer}>
+              <Text style={[styles.label, { color: currentTheme.colors.text }]}>
+                Email Address
+              </Text>
+              <View
+                style={[
+                  styles.inputWrapper,
+                  {
+                    borderColor: currentTheme.colors.border,
+                    backgroundColor: currentTheme.colors.surface,
+                  },
+                ]}
+              >
+                <MaterialIcons
+                  name="email"
+                  size={20}
+                  color={currentTheme.colors.textSecondary}
+                  style={styles.inputIcon}
+                />
+                <TextInput
+                  style={[styles.input, { color: currentTheme.colors.text }]}
+                  placeholder="Enter your email"
+                  placeholderTextColor={currentTheme.colors.textSecondary}
+                  value={resetEmail}
+                  onChangeText={setResetEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoComplete="email"
+                />
+              </View>
+            </View>
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                style={[
+                  styles.modalButton,
+                  styles.modalCancelButton,
+                  { borderColor: currentTheme.colors.border },
+                ]}
+                onPress={() => setShowForgotPassword(false)}
+              >
+                <Text
+                  style={[
+                    styles.modalButtonText,
+                    { color: currentTheme.colors.text },
+                  ]}
+                >
+                  Cancel
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.modalButton,
+                  styles.modalConfirmButton,
+                  { backgroundColor: currentTheme.colors.primary },
+                  resetLoading && styles.disabledButton,
+                ]}
+                onPress={handleForgotPassword}
+                disabled={resetLoading}
+              >
+                <Text
+                  style={[
+                    styles.modalButtonText,
+                    { color: currentTheme.colors.background },
+                  ]}
+                >
+                  {resetLoading ? "Sending..." : "Send Reset Link"}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -350,6 +531,14 @@ const createStyles = (theme) =>
       fontSize: 14,
       marginTop: 4,
     },
+    forgotPasswordContainer: {
+      alignItems: "flex-end",
+      marginTop: -8,
+    },
+    forgotPasswordText: {
+      fontSize: 14,
+      fontWeight: "600",
+    },
     signInButton: {
       paddingVertical: 16,
       borderRadius: 12,
@@ -373,6 +562,62 @@ const createStyles = (theme) =>
       fontSize: 16,
     },
     signUpLink: {
+      fontSize: 16,
+      fontWeight: "600",
+    },
+    // Modal styles
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: "rgba(0, 0, 0, 0.5)",
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 24,
+    },
+    modalContent: {
+      width: "100%",
+      borderRadius: 16,
+      padding: 24,
+      ...theme.shadows.lg,
+    },
+    modalHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 16,
+    },
+    modalTitle: {
+      fontSize: 20,
+      fontWeight: "700",
+    },
+    modalCloseButton: {
+      padding: 4,
+    },
+    modalDescription: {
+      fontSize: 14,
+      lineHeight: 20,
+      marginBottom: 24,
+    },
+    modalInputContainer: {
+      gap: 8,
+      marginBottom: 24,
+    },
+    modalActions: {
+      flexDirection: "row",
+      gap: 12,
+    },
+    modalButton: {
+      flex: 1,
+      paddingVertical: 14,
+      borderRadius: 12,
+      alignItems: "center",
+    },
+    modalCancelButton: {
+      borderWidth: 1,
+    },
+    modalConfirmButton: {
+      // backgroundColor applied in component
+    },
+    modalButtonText: {
       fontSize: 16,
       fontWeight: "600",
     },
