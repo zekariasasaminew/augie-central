@@ -72,20 +72,31 @@ const HomeScreen = ({ navigation }) => {
 
   const renderAnnouncementCard = ({ item }) => (
     <TouchableOpacity
-      style={[styles.card, { backgroundColor: currentTheme.colors.card }]}
+      style={[
+        styles.card,
+        {
+          backgroundColor: currentTheme.colors.card,
+          borderColor: currentTheme.colors.borderLight,
+          shadowColor: currentTheme.colors.shadow,
+        },
+        currentTheme.shadows.md,
+      ]}
       onPress={() =>
         navigation.navigate("AnnouncementDetail", { announcement: item })
       }
-      activeOpacity={0.7}
+      activeOpacity={0.95}
     >
       <View style={styles.cardContent}>
         <View style={styles.cardHeader}>
           <View style={styles.authorContainer}>
-            <MaterialIcons
-              name="verified"
-              size={16}
-              color={currentTheme.colors.primary}
-            />
+            <View
+              style={[
+                styles.verifiedBadge,
+                { backgroundColor: currentTheme.colors.primary },
+              ]}
+            >
+              <MaterialIcons name="verified" size={14} color="white" />
+            </View>
             <Text
               style={[
                 styles.authorText,
@@ -95,14 +106,21 @@ const HomeScreen = ({ navigation }) => {
               {item.profiles?.name || "Office of Student Life"}
             </Text>
           </View>
-          <Text
-            style={[
-              styles.dateText,
-              { color: currentTheme.colors.textSecondary },
-            ]}
-          >
-            {formatDate(item.created_at)}
-          </Text>
+          <View style={styles.dateContainer}>
+            <MaterialIcons
+              name="schedule"
+              size={14}
+              color={currentTheme.colors.textTertiary}
+            />
+            <Text
+              style={[
+                styles.dateText,
+                { color: currentTheme.colors.textTertiary },
+              ]}
+            >
+              {formatDate(item.created_at)}
+            </Text>
+          </View>
         </View>
 
         <Text style={[styles.titleText, { color: currentTheme.colors.text }]}>
@@ -119,20 +137,74 @@ const HomeScreen = ({ navigation }) => {
           {item.content}
         </Text>
 
+        {/* Tags (if available) */}
+        {item.tags && item.tags.length > 0 && (
+          <View style={styles.tagsContainer}>
+            {item.tags.slice(0, 3).map((tag, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.tag,
+                  {
+                    backgroundColor: currentTheme.colors.primary + "15",
+                    borderColor: currentTheme.colors.primary + "30",
+                  },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.tagText,
+                    { color: currentTheme.colors.primary },
+                  ]}
+                >
+                  {tag}
+                </Text>
+              </View>
+            ))}
+            {item.tags.length > 3 && (
+              <Text
+                style={[
+                  styles.moreTagsText,
+                  { color: currentTheme.colors.textTertiary },
+                ]}
+              >
+                +{item.tags.length - 3} more
+              </Text>
+            )}
+          </View>
+        )}
+
         <View style={styles.cardFooter}>
-          <MaterialIcons
-            name="arrow-forward"
-            size={16}
-            color={currentTheme.colors.primary}
-          />
-          <Text
-            style={[
-              styles.readMoreText,
-              { color: currentTheme.colors.primary },
-            ]}
-          >
-            Read More
-          </Text>
+          <View style={styles.cardFooterLeft}>
+            <MaterialIcons
+              name="visibility"
+              size={16}
+              color={currentTheme.colors.textTertiary}
+            />
+            <Text
+              style={[
+                styles.viewsText,
+                { color: currentTheme.colors.textTertiary },
+              ]}
+            >
+              {item.views || 0} views
+            </Text>
+          </View>
+          <View style={styles.readMoreContainer}>
+            <Text
+              style={[
+                styles.readMoreText,
+                { color: currentTheme.colors.primary },
+              ]}
+            >
+              Read More
+            </Text>
+            <MaterialIcons
+              name="arrow-forward"
+              size={16}
+              color={currentTheme.colors.primary}
+            />
+          </View>
         </View>
       </View>
     </TouchableOpacity>
@@ -152,13 +224,104 @@ const HomeScreen = ({ navigation }) => {
         <Text style={[styles.nameText, { color: currentTheme.colors.text }]}>
           {profile?.name || user?.user_metadata?.name || "Student"}!
         </Text>
+        <Text
+          style={[
+            styles.subtitleText,
+            { color: currentTheme.colors.textTertiary },
+          ]}
+        >
+          Here's what's happening at Augie Central
+        </Text>
+      </View>
+
+      {/* Quick Access Cards */}
+      <View style={styles.quickAccessContainer}>
+        <TouchableOpacity
+          style={[
+            styles.quickAccessCard,
+            {
+              backgroundColor: currentTheme.colors.primary + "10",
+              borderColor: currentTheme.colors.primary + "20",
+            },
+          ]}
+          onPress={() => navigation.navigate("Events")}
+        >
+          <MaterialIcons
+            name="event"
+            size={24}
+            color={currentTheme.colors.primary}
+          />
+          <Text
+            style={[
+              styles.quickAccessText,
+              { color: currentTheme.colors.primary },
+            ]}
+          >
+            Events
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.quickAccessCard,
+            {
+              backgroundColor: currentTheme.colors.secondary + "10",
+              borderColor: currentTheme.colors.secondary + "20",
+            },
+          ]}
+          onPress={() => navigation.navigate("Organizations")}
+        >
+          <MaterialIcons
+            name="groups"
+            size={24}
+            color={currentTheme.colors.secondary}
+          />
+          <Text
+            style={[
+              styles.quickAccessText,
+              { color: currentTheme.colors.secondary },
+            ]}
+          >
+            Organizations
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.quickAccessCard,
+            {
+              backgroundColor: currentTheme.colors.accent + "10",
+              borderColor: currentTheme.colors.accent + "20",
+            },
+          ]}
+          onPress={() => navigation.navigate("Profile")}
+        >
+          <MaterialIcons
+            name="person"
+            size={24}
+            color={currentTheme.colors.accent}
+          />
+          <Text
+            style={[
+              styles.quickAccessText,
+              { color: currentTheme.colors.accent },
+            ]}
+          >
+            Profile
+          </Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.statsContainer}>
         <View
           style={[
             styles.statCard,
-            { backgroundColor: currentTheme.colors.surface },
+            {
+              backgroundColor: currentTheme.colors.surface,
+              borderColor: currentTheme.colors.borderLight,
+              shadowColor: currentTheme.colors.shadow,
+            },
+            currentTheme.shadows.sm,
           ]}
         >
           <MaterialIcons
@@ -184,7 +347,12 @@ const HomeScreen = ({ navigation }) => {
         <View
           style={[
             styles.statCard,
-            { backgroundColor: currentTheme.colors.surface },
+            {
+              backgroundColor: currentTheme.colors.surface,
+              borderColor: currentTheme.colors.borderLight,
+              shadowColor: currentTheme.colors.shadow,
+            },
+            currentTheme.shadows.sm,
           ]}
         >
           <MaterialIcons
@@ -206,19 +374,64 @@ const HomeScreen = ({ navigation }) => {
             Upcoming Events
           </Text>
         </View>
+
+        <View
+          style={[
+            styles.statCard,
+            {
+              backgroundColor: currentTheme.colors.surface,
+              borderColor: currentTheme.colors.borderLight,
+              shadowColor: currentTheme.colors.shadow,
+            },
+            currentTheme.shadows.sm,
+          ]}
+        >
+          <MaterialIcons
+            name="groups"
+            size={24}
+            color={currentTheme.colors.accent}
+          />
+          <Text
+            style={[styles.statNumber, { color: currentTheme.colors.text }]}
+          >
+            12
+          </Text>
+          <Text
+            style={[
+              styles.statLabel,
+              { color: currentTheme.colors.textSecondary },
+            ]}
+          >
+            Organizations
+          </Text>
+        </View>
       </View>
 
       <View style={styles.sectionHeader}>
-        <Text
-          style={[styles.sectionTitle, { color: currentTheme.colors.text }]}
-        >
-          Latest Announcements
-        </Text>
+        <View>
+          <Text
+            style={[styles.sectionTitle, { color: currentTheme.colors.text }]}
+          >
+            Latest Announcements
+          </Text>
+          <Text
+            style={[
+              styles.sectionSubtitle,
+              { color: currentTheme.colors.textSecondary },
+            ]}
+          >
+            Stay updated with campus news
+          </Text>
+        </View>
         {profile?.is_admin && (
           <TouchableOpacity
             style={[
               styles.addButton,
-              { backgroundColor: currentTheme.colors.primary },
+              {
+                backgroundColor: currentTheme.colors.primary,
+                shadowColor: currentTheme.colors.shadow,
+              },
+              currentTheme.shadows.sm,
             ]}
             onPress={handleCreateAnnouncement}
           >
@@ -303,6 +516,10 @@ const createStyles = (theme) =>
       fontWeight: "700",
       marginTop: 4,
     },
+    subtitleText: {
+      fontSize: 14,
+      fontWeight: "400",
+    },
     statsContainer: {
       flexDirection: "row",
       gap: 16,
@@ -310,10 +527,11 @@ const createStyles = (theme) =>
     },
     statCard: {
       flex: 1,
-      padding: 16,
-      borderRadius: 12,
+      padding: 18,
+      borderRadius: 16,
+      borderWidth: 1,
       alignItems: "center",
-      gap: 8,
+      gap: 10,
     },
     statNumber: {
       fontSize: 24,
@@ -334,6 +552,10 @@ const createStyles = (theme) =>
       fontSize: 20,
       fontWeight: "600",
     },
+    sectionSubtitle: {
+      fontSize: 14,
+      fontWeight: "400",
+    },
     addButton: {
       width: 36,
       height: 36,
@@ -345,29 +567,41 @@ const createStyles = (theme) =>
       borderRadius: 16,
       marginBottom: 16,
       overflow: "hidden",
-      ...theme.shadows.md,
+      borderWidth: 1,
     },
     cardImage: {
       width: "100%",
       height: 160,
     },
     cardContent: {
-      padding: 16,
+      padding: 20,
     },
     cardHeader: {
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
-      marginBottom: 12,
+      marginBottom: 16,
     },
     authorContainer: {
       flexDirection: "row",
       alignItems: "center",
-      gap: 6,
+      gap: 8,
+    },
+    verifiedBadge: {
+      width: 22,
+      height: 22,
+      borderRadius: 11,
+      justifyContent: "center",
+      alignItems: "center",
     },
     authorText: {
       fontSize: 14,
       fontWeight: "600",
+    },
+    dateContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
     },
     dateText: {
       fontSize: 12,
@@ -375,36 +609,57 @@ const createStyles = (theme) =>
     },
     titleText: {
       fontSize: 18,
-      fontWeight: "600",
-      marginBottom: 8,
+      fontWeight: "700",
+      marginBottom: 12,
       lineHeight: 24,
     },
     descriptionText: {
-      fontSize: 14,
-      lineHeight: 20,
-      marginBottom: 12,
+      fontSize: 15,
+      lineHeight: 22,
+      marginBottom: 16,
     },
     tagsContainer: {
       flexDirection: "row",
+      flexWrap: "wrap",
       gap: 8,
-      marginBottom: 12,
+      marginBottom: 16,
+      alignItems: "center",
     },
     tag: {
-      paddingHorizontal: 8,
+      paddingHorizontal: 10,
       paddingVertical: 4,
-      borderRadius: 12,
+      borderRadius: 8,
+      borderWidth: 1,
     },
     tagText: {
       fontSize: 12,
-      fontWeight: "500",
+      fontWeight: "600",
     },
     cardFooter: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+    },
+    cardFooterLeft: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
+    },
+    readMoreContainer: {
       flexDirection: "row",
       alignItems: "center",
       gap: 4,
     },
     readMoreText: {
       fontSize: 14,
+      fontWeight: "600",
+    },
+    viewsText: {
+      fontSize: 12,
+      fontWeight: "500",
+    },
+    moreTagsText: {
+      fontSize: 12,
       fontWeight: "500",
     },
     emptyState: {
@@ -422,6 +677,24 @@ const createStyles = (theme) =>
       fontSize: 14,
       textAlign: "center",
       lineHeight: 20,
+    },
+    quickAccessContainer: {
+      flexDirection: "row",
+      gap: 16,
+      marginBottom: 24,
+    },
+    quickAccessCard: {
+      flex: 1,
+      padding: 16,
+      borderRadius: 12,
+      borderWidth: 2,
+      borderColor: "transparent",
+      alignItems: "center",
+      gap: 8,
+    },
+    quickAccessText: {
+      fontSize: 14,
+      fontWeight: "500",
     },
   });
 
