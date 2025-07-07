@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   Alert,
   RefreshControl,
+  Modal,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
@@ -26,6 +27,7 @@ const OrganizationsScreen = ({ navigation }) => {
   const [organizations, setOrganizations] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showFilterModal, setShowFilterModal] = useState(false);
 
   const loadOrganizations = useCallback(async () => {
     try {
@@ -55,6 +57,17 @@ const OrganizationsScreen = ({ navigation }) => {
   const filteredOrganizations = organizations.filter(
     (org) => selectedCategory === "all" || org.category === selectedCategory
   );
+
+  const getSelectedCategoryName = () => {
+    const category = organizationCategories.find(
+      (cat) => cat.id === selectedCategory
+    );
+    return category ? category.name : "All";
+  };
+
+  const getActiveFilterCount = () => {
+    return selectedCategory === "all" ? 0 : 1;
+  };
 
   const handleJoinOrganization = async (org) => {
     if (!user) {
@@ -115,45 +128,166 @@ const OrganizationsScreen = ({ navigation }) => {
     );
   };
 
-  const renderCategory = ({ item }) => (
-    <TouchableOpacity
-      style={[
-        styles.categoryChip,
-        selectedCategory === item.id && {
-          backgroundColor: currentTheme.colors.primary,
-        },
-        { borderColor: currentTheme.colors.border },
-      ]}
-      onPress={() => setSelectedCategory(item.id)}
+  const selectFilter = (categoryId) => {
+    setSelectedCategory(categoryId);
+    setShowFilterModal(false);
+  };
+
+  const clearFilters = () => {
+    setSelectedCategory("all");
+    setShowFilterModal(false);
+  };
+
+  const renderFilterModal = () => (
+    <Modal
+      visible={showFilterModal}
+      transparent={true}
+      animationType="fade"
+      onRequestClose={() => setShowFilterModal(false)}
     >
-      <MaterialIcons
-        name={item.icon}
-        size={16}
-        color={
-          selectedCategory === item.id
-            ? "white"
-            : currentTheme.colors.textSecondary
-        }
-      />
-      <Text
-        style={[
-          styles.categoryText,
-          {
-            color:
-              selectedCategory === item.id
-                ? "white"
-                : currentTheme.colors.textSecondary,
-          },
-        ]}
-      >
-        {item.name}
-      </Text>
-    </TouchableOpacity>
+      <View style={styles.modalOverlay}>
+        <View
+          style={[
+            styles.filterModal,
+            {
+              backgroundColor: currentTheme.colors.card,
+              borderColor: currentTheme.colors.border,
+              shadowColor: currentTheme.colors.shadow,
+            },
+            currentTheme.shadows.lg,
+          ]}
+        >
+          <View style={styles.filterModalHeader}>
+            <Text
+              style={[
+                styles.filterModalTitle,
+                { color: currentTheme.colors.text },
+              ]}
+            >
+              Filter Organizations
+            </Text>
+            <TouchableOpacity
+              onPress={() => setShowFilterModal(false)}
+              style={styles.filterModalClose}
+            >
+              <MaterialIcons
+                name="close"
+                size={24}
+                color={currentTheme.colors.textSecondary}
+              />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.filterOptions}>
+            {organizationCategories.map((category) => (
+              <TouchableOpacity
+                key={category.id}
+                style={[
+                  styles.filterOption,
+                  selectedCategory === category.id && {
+                    backgroundColor: currentTheme.colors.primary + "15",
+                    borderColor: currentTheme.colors.primary,
+                  },
+                  {
+                    borderColor: currentTheme.colors.border,
+                    backgroundColor:
+                      selectedCategory === category.id
+                        ? currentTheme.colors.primary + "15"
+                        : currentTheme.colors.surface,
+                  },
+                ]}
+                onPress={() => selectFilter(category.id)}
+              >
+                <View style={styles.filterOptionContent}>
+                  <MaterialIcons
+                    name={category.icon}
+                    size={20}
+                    color={
+                      selectedCategory === category.id
+                        ? currentTheme.colors.primary
+                        : currentTheme.colors.textSecondary
+                    }
+                  />
+                  <Text
+                    style={[
+                      styles.filterOptionText,
+                      {
+                        color:
+                          selectedCategory === category.id
+                            ? currentTheme.colors.primary
+                            : currentTheme.colors.text,
+                      },
+                    ]}
+                  >
+                    {category.name}
+                  </Text>
+                </View>
+                {selectedCategory === category.id && (
+                  <MaterialIcons
+                    name="check"
+                    size={20}
+                    color={currentTheme.colors.primary}
+                  />
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <View style={styles.filterModalActions}>
+            <TouchableOpacity
+              style={[
+                styles.filterModalButton,
+                styles.clearButton,
+                {
+                  borderColor: currentTheme.colors.border,
+                  backgroundColor: currentTheme.colors.surface,
+                },
+              ]}
+              onPress={clearFilters}
+            >
+              <Text
+                style={[
+                  styles.filterModalButtonText,
+                  { color: currentTheme.colors.textSecondary },
+                ]}
+              >
+                Clear All
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.filterModalButton,
+                styles.applyButton,
+                { backgroundColor: currentTheme.colors.primary },
+              ]}
+              onPress={() => setShowFilterModal(false)}
+            >
+              <Text
+                style={[
+                  styles.filterModalButtonText,
+                  { color: currentTheme.colors.background },
+                ]}
+              >
+                Apply Filters
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
   );
 
   const renderOrganization = ({ item }) => (
     <View
-      style={[styles.orgCard, { backgroundColor: currentTheme.colors.card }]}
+      style={[
+        styles.orgCard,
+        {
+          backgroundColor: currentTheme.colors.card,
+          borderColor: currentTheme.colors.borderLight,
+          shadowColor: currentTheme.colors.shadow,
+        },
+        currentTheme.shadows.md,
+      ]}
     >
       <View style={styles.orgHeader}>
         <View
@@ -177,14 +311,21 @@ const OrganizationsScreen = ({ navigation }) => {
           >
             {item.description}
           </Text>
-          <Text
-            style={[
-              styles.orgMeetings,
-              { color: currentTheme.colors.textSecondary },
-            ]}
-          >
-            📅 {item.meetingSchedule}
-          </Text>
+          <View style={styles.orgMeetingInfo}>
+            <MaterialIcons
+              name="schedule"
+              size={14}
+              color={currentTheme.colors.textTertiary}
+            />
+            <Text
+              style={[
+                styles.orgMeetings,
+                { color: currentTheme.colors.textTertiary },
+              ]}
+            >
+              {item.meetingSchedule}
+            </Text>
+          </View>
         </View>
       </View>
 
@@ -277,15 +418,93 @@ const OrganizationsScreen = ({ navigation }) => {
           </Text>
         </View>
 
-        {/* Categories */}
-        <FlatList
-          data={organizationCategories}
-          renderItem={renderCategory}
-          keyExtractor={(item) => item.id}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.categoriesContainer}
-        />
+        {/* Filter Controls */}
+        <View style={styles.filterControls}>
+          <TouchableOpacity
+            style={[
+              styles.filterButton,
+              {
+                backgroundColor: currentTheme.colors.surface,
+                borderColor: currentTheme.colors.border,
+                shadowColor: currentTheme.colors.shadow,
+              },
+              currentTheme.shadows.sm,
+            ]}
+            onPress={() => setShowFilterModal(true)}
+          >
+            <MaterialIcons
+              name="filter-list"
+              size={20}
+              color={currentTheme.colors.primary}
+            />
+            <Text
+              style={[
+                styles.filterButtonText,
+                { color: currentTheme.colors.text },
+              ]}
+            >
+              Filter
+            </Text>
+            {getActiveFilterCount() > 0 && (
+              <View
+                style={[
+                  styles.filterBadge,
+                  { backgroundColor: currentTheme.colors.primary },
+                ]}
+              >
+                <Text style={styles.filterBadgeText}>
+                  {getActiveFilterCount()}
+                </Text>
+              </View>
+            )}
+          </TouchableOpacity>
+
+          {selectedCategory !== "all" && (
+            <View style={styles.activeFilters}>
+              <View
+                style={[
+                  styles.activeFilterChip,
+                  {
+                    backgroundColor: currentTheme.colors.primary + "15",
+                    borderColor: currentTheme.colors.primary + "30",
+                  },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.activeFilterText,
+                    { color: currentTheme.colors.primary },
+                  ]}
+                >
+                  {getSelectedCategoryName()}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => setSelectedCategory("all")}
+                  style={styles.removeFilterButton}
+                >
+                  <MaterialIcons
+                    name="close"
+                    size={16}
+                    color={currentTheme.colors.primary}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+        </View>
+
+        {/* Results Header */}
+        <View style={styles.resultsHeader}>
+          <Text
+            style={[
+              styles.resultsText,
+              { color: currentTheme.colors.textSecondary },
+            ]}
+          >
+            {filteredOrganizations.length} organization
+            {filteredOrganizations.length !== 1 ? "s" : ""} found
+          </Text>
+        </View>
 
         {/* Organizations */}
         <FlatList
@@ -304,6 +523,8 @@ const OrganizationsScreen = ({ navigation }) => {
           }
         />
       </View>
+
+      {renderFilterModal()}
     </SafeAreaView>
   );
 };
@@ -328,11 +549,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 22,
   },
-  categoriesContainer: {
-    paddingRight: 16,
+  filterControls: {
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 24,
   },
-  categoryChip: {
+  filterButton: {
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
@@ -342,8 +564,35 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: 6,
   },
-  categoryText: {
+  filterButtonText: {
     fontSize: 14,
+    fontWeight: "500",
+  },
+  activeFilters: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  activeFilterChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+  },
+  activeFilterText: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  removeFilterButton: {
+    padding: 4,
+  },
+  resultsHeader: {
+    marginBottom: 24,
+  },
+  resultsText: {
+    fontSize: 16,
     fontWeight: "500",
   },
   organizationsContainer: {
@@ -351,8 +600,9 @@ const styles = StyleSheet.create({
   },
   orgCard: {
     borderRadius: 16,
-    padding: 16,
+    padding: 20,
     marginBottom: 16,
+    borderWidth: 1,
   },
   orgHeader: {
     flexDirection: "row",
@@ -383,6 +633,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     marginBottom: 8,
+  },
+  orgMeetingInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
   },
   orgMeetings: {
     fontSize: 12,
@@ -425,6 +680,85 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   createEventButtonText: {
+    color: "white",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  filterModal: {
+    width: "80%",
+    height: "80%",
+    borderRadius: 16,
+    padding: 24,
+  },
+  filterModalHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 24,
+  },
+  filterModalTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+  },
+  filterModalClose: {
+    padding: 8,
+  },
+  filterOptions: {
+    flex: 1,
+    marginBottom: 24,
+  },
+  filterOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginBottom: 8,
+    borderWidth: 1,
+    gap: 6,
+  },
+  filterOptionContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  filterOptionText: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  filterModalActions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  filterModalButton: {
+    paddingHorizontal: 24,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  clearButton: {
+    backgroundColor: "transparent",
+  },
+  applyButton: {
+    backgroundColor: "transparent",
+  },
+  filterModalButtonText: {
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  filterBadge: {
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+    borderRadius: 12,
+    marginLeft: 8,
+  },
+  filterBadgeText: {
     color: "white",
     fontSize: 12,
     fontWeight: "600",
