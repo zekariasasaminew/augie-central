@@ -67,7 +67,9 @@ const HomeScreen = ({ navigation }) => {
       );
       return;
     }
-    navigation.navigate("CreateAnnouncement");
+    navigation.navigate("CreateAnnouncement", {
+      onRefresh: loadAnnouncements,
+    });
   };
 
   const renderAnnouncementCard = ({ item }) => (
