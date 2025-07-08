@@ -14,13 +14,14 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 
 import { useAuth } from "../../contexts/AuthContext";
+import { useApp } from "../../contexts/AppContext";
 import { lightTheme, darkTheme } from "../../styles/theme";
 import { organizationApi } from "../../supabase/api";
 import { organizationCategories } from "../../data/mockData";
 
 const OrganizationsScreen = ({ navigation }) => {
   const { user, profile } = useAuth();
-  const theme = "light"; // You can implement theme switching later
+  const { theme } = useApp();
   const currentTheme = theme === "light" ? lightTheme : darkTheme;
 
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -420,45 +421,6 @@ const OrganizationsScreen = ({ navigation }) => {
 
         {/* Filter Controls */}
         <View style={styles.filterControls}>
-          <TouchableOpacity
-            style={[
-              styles.filterButton,
-              {
-                backgroundColor: currentTheme.colors.surface,
-                borderColor: currentTheme.colors.border,
-                shadowColor: currentTheme.colors.shadow,
-              },
-              currentTheme.shadows.sm,
-            ]}
-            onPress={() => setShowFilterModal(true)}
-          >
-            <MaterialIcons
-              name="filter-list"
-              size={20}
-              color={currentTheme.colors.primary}
-            />
-            <Text
-              style={[
-                styles.filterButtonText,
-                { color: currentTheme.colors.text },
-              ]}
-            >
-              Filter
-            </Text>
-            {getActiveFilterCount() > 0 && (
-              <View
-                style={[
-                  styles.filterBadge,
-                  { backgroundColor: currentTheme.colors.primary },
-                ]}
-              >
-                <Text style={styles.filterBadgeText}>
-                  {getActiveFilterCount()}
-                </Text>
-              </View>
-            )}
-          </TouchableOpacity>
-
           {selectedCategory !== "all" && (
             <View style={styles.activeFilters}>
               <View
@@ -524,6 +486,31 @@ const OrganizationsScreen = ({ navigation }) => {
         />
       </View>
 
+      {/* Floating Filter Button */}
+      <TouchableOpacity
+        style={[
+          styles.floatingFilterButton,
+          {
+            backgroundColor: currentTheme.colors.primary,
+            shadowColor: currentTheme.colors.shadow,
+          },
+          currentTheme.shadows.lg,
+        ]}
+        onPress={() => setShowFilterModal(true)}
+      >
+        <MaterialIcons name="tune" size={24} color="white" />
+        {getActiveFilterCount() > 0 && (
+          <View
+            style={[
+              styles.filterBadge,
+              { backgroundColor: currentTheme.colors.accent },
+            ]}
+          >
+            <Text style={styles.filterBadgeText}>{getActiveFilterCount()}</Text>
+          </View>
+        )}
+      </TouchableOpacity>
+
       {renderFilterModal()}
     </SafeAreaView>
   );
@@ -553,20 +540,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 24,
-  },
-  filterButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginRight: 12,
-    borderWidth: 1,
-    gap: 6,
-  },
-  filterButtonText: {
-    fontSize: 14,
-    fontWeight: "500",
   },
   activeFilters: {
     flexDirection: "row",
@@ -751,6 +724,13 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
     justifyContent: "center",
     alignItems: "center",
+  },
+  floatingFilterButton: {
+    position: "absolute",
+    top: 16,
+    right: 16,
+    padding: 16,
+    borderRadius: 20,
   },
   filterBadge: {
     paddingHorizontal: 4,

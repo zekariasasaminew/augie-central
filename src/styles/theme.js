@@ -1,16 +1,36 @@
-// Modern Tech-Inspired Color Palette
+// Modern Balanced Tech Color Palette
 const modernColors = {
-  // Primary tech colors
-  deepIndigo: "#1E1B4B", // Deep indigo primary
-  electricBlue: "#3B82F6", // Electric blue
-  indigoLight: "#6366F1", // Lighter indigo
+  // Primary colors (Midnight Navy theme)
+  midnightNavy: "#0F172A", // Primary - Midnight Navy
+  skyBlue: "#38BDF8", // Secondary - Sky Blue
+  limeGreen: "#84CC16", // Accent - Lime Green
 
-  // Accent colors
-  neonGreen: "#10B981", // Emerald green
-  coralRed: "#EF4444", // Coral red
-  amber: "#F59E0B", // Warm amber
+  // Extended color palette for variations
+  navy50: "#F0F9FF",
+  navy100: "#E0F2FE",
+  navy200: "#BAE6FD",
+  navy300: "#7DD3FC",
+  navy400: "#38BDF8",
+  navy500: "#0EA5E9",
+  navy600: "#0284C7",
+  navy700: "#0369A1",
+  navy800: "#075985",
+  navy900: "#0C4A6E",
+  navy950: "#0F172A",
 
-  // Neutrals
+  // Lime variations
+  lime50: "#F7FEE7",
+  lime100: "#ECFCCB",
+  lime200: "#D9F99D",
+  lime300: "#BEF264",
+  lime400: "#A3E635",
+  lime500: "#84CC16",
+  lime600: "#65A30D",
+  lime700: "#4D7C0F",
+  lime800: "#365314",
+  lime900: "#1A2E05",
+
+  // Neutrals (Slate scale)
   slate50: "#F8FAFC",
   slate100: "#F1F5F9",
   slate200: "#E2E8F0",
@@ -19,8 +39,15 @@ const modernColors = {
   slate500: "#64748B",
   slate600: "#475569",
   slate700: "#334155",
-  slate800: "#1E293B",
-  slate900: "#0F172A",
+  slate800: "#1E293B", // Charcoal for dark mode surface
+  slate900: "#0F172A", // Deep navy
+  slate950: "#020617",
+
+  // Status colors
+  red500: "#EF4444",
+  orange500: "#F97316",
+  amber500: "#F59E0B",
+  emerald500: "#10B981",
 
   // Pure colors
   white: "#FFFFFF",
@@ -30,38 +57,46 @@ const modernColors = {
 // Light Theme
 export const lightTheme = {
   colors: {
-    primary: modernColors.deepIndigo,
-    primaryLight: modernColors.indigoLight,
-    secondary: modernColors.electricBlue,
-    accent: modernColors.neonGreen,
-    warning: modernColors.amber,
-    error: modernColors.coralRed,
+    primary: modernColors.midnightNavy, // #0F172A
+    primaryLight: modernColors.navy700, // #0369A1
+    secondary: modernColors.skyBlue, // #38BDF8
+    secondaryLight: modernColors.navy300, // #7DD3FC
+    accent: modernColors.limeGreen, // #84CC16
+    accentLight: modernColors.lime400, // #A3E635
 
+    success: modernColors.emerald500,
+    warning: modernColors.amber500,
+    error: modernColors.red500,
+    info: modernColors.skyBlue,
+
+    // Backgrounds
     background: modernColors.white,
-    surface: modernColors.slate50,
+    surface: modernColors.slate50, // #F8FAFC - Light surface
     surfaceElevated: modernColors.white,
     card: modernColors.white,
 
-    text: modernColors.slate900,
-    textSecondary: modernColors.slate600,
-    textTertiary: modernColors.slate500,
+    // Text colors
+    text: modernColors.slate900, // #0F172A - Deep navy text
+    textSecondary: modernColors.slate600, // #475569
+    textTertiary: modernColors.slate500, // #64748B
+    textInverse: modernColors.slate50, // For dark backgrounds
 
-    border: modernColors.slate200,
-    borderLight: modernColors.slate100,
-
-    success: modernColors.neonGreen,
-    notification: modernColors.coralRed,
-    info: modernColors.electricBlue,
-
-    shadow: "rgba(15, 23, 42, 0.08)", // Slate 900 with opacity
-    shadowMedium: "rgba(15, 23, 42, 0.12)",
-    shadowStrong: "rgba(15, 23, 42, 0.16)",
-    overlay: "rgba(0, 0, 0, 0.4)",
+    // Borders
+    border: modernColors.slate200, // #E2E8F0
+    borderLight: modernColors.slate100, // #F1F5F9
+    borderStrong: modernColors.slate300, // #CBD5E1
 
     // Interactive states
     hover: modernColors.slate100,
     pressed: modernColors.slate200,
     disabled: modernColors.slate300,
+    focus: modernColors.skyBlue,
+
+    // Shadows
+    shadow: "rgba(15, 23, 42, 0.08)", // Midnight navy with opacity
+    shadowMedium: "rgba(15, 23, 42, 0.12)",
+    shadowStrong: "rgba(15, 23, 42, 0.16)",
+    overlay: "rgba(0, 0, 0, 0.4)",
   },
   spacing: {
     xs: 4,
@@ -140,38 +175,46 @@ export const lightTheme = {
 export const darkTheme = {
   ...lightTheme,
   colors: {
-    primary: modernColors.electricBlue,
-    primaryLight: modernColors.indigoLight,
-    secondary: modernColors.neonGreen,
-    accent: modernColors.amber,
-    warning: modernColors.amber,
-    error: modernColors.coralRed,
+    primary: modernColors.skyBlue, // #38BDF8 - Sky blue for dark mode
+    primaryLight: modernColors.navy300, // #7DD3FC
+    secondary: modernColors.limeGreen, // #84CC16 - Lime green
+    secondaryLight: modernColors.lime400, // #A3E635
+    accent: modernColors.lime500, // #84CC16
+    accentLight: modernColors.lime400, // #A3E635
 
-    background: modernColors.slate900,
-    surface: modernColors.slate800,
-    surfaceElevated: modernColors.slate700,
-    card: modernColors.slate800,
+    success: modernColors.emerald500,
+    warning: modernColors.amber500,
+    error: modernColors.red500,
+    info: modernColors.skyBlue,
 
-    text: modernColors.slate50,
-    textSecondary: modernColors.slate300,
-    textTertiary: modernColors.slate400,
+    // Dark backgrounds
+    background: modernColors.slate950, // #020617 - Darkest
+    surface: modernColors.slate800, // #1E293B - Charcoal surface
+    surfaceElevated: modernColors.slate700, // #334155
+    card: modernColors.slate800, // #1E293B
 
-    border: modernColors.slate700,
-    borderLight: modernColors.slate600,
+    // Dark text colors
+    text: modernColors.slate200, // #E2E8F0 - Light gray text
+    textSecondary: modernColors.slate400, // #94A3B8
+    textTertiary: modernColors.slate500, // #64748B
+    textInverse: modernColors.slate900, // For light backgrounds
 
-    success: modernColors.neonGreen,
-    notification: modernColors.coralRed,
-    info: modernColors.electricBlue,
+    // Dark borders
+    border: modernColors.slate700, // #334155
+    borderLight: modernColors.slate600, // #475569
+    borderStrong: modernColors.slate500, // #64748B
 
+    // Dark interactive states
+    hover: modernColors.slate700,
+    pressed: modernColors.slate600,
+    disabled: modernColors.slate600,
+    focus: modernColors.skyBlue,
+
+    // Dark shadows
     shadow: "rgba(0, 0, 0, 0.3)",
     shadowMedium: "rgba(0, 0, 0, 0.4)",
     shadowStrong: "rgba(0, 0, 0, 0.5)",
     overlay: "rgba(0, 0, 0, 0.6)",
-
-    // Interactive states
-    hover: modernColors.slate700,
-    pressed: modernColors.slate600,
-    disabled: modernColors.slate600,
   },
 };
 

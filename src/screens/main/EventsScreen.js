@@ -9,17 +9,19 @@ import {
   Alert,
   ScrollView,
   RefreshControl,
+  Modal,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 
 import { useAuth } from "../../contexts/AuthContext";
+import { useApp } from "../../contexts/AppContext";
 import { lightTheme, darkTheme } from "../../styles/theme";
 import { eventApi } from "../../supabase/api";
 
 const EventsScreen = ({ navigation }) => {
   const { user, profile } = useAuth();
-  const theme = "light"; // You can implement theme switching later
+  const { theme } = useApp();
   const currentTheme = theme === "light" ? lightTheme : darkTheme;
 
   const [events, setEvents] = useState([]);
@@ -27,6 +29,18 @@ const EventsScreen = ({ navigation }) => {
   const [showCalendar, setShowCalendar] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("all");
+
+  const eventCategories = [
+    { id: "all", name: "All Events", icon: "event" },
+    { id: "academic", name: "Academic", icon: "school" },
+    { id: "social", name: "Social", icon: "people" },
+    { id: "sports", name: "Sports", icon: "sports" },
+    { id: "cultural", name: "Cultural", icon: "theater-comedy" },
+    { id: "workshop", name: "Workshops", icon: "build" },
+    { id: "career", name: "Career", icon: "work" },
+  ];
 
   const loadEvents = useCallback(async () => {
     try {
@@ -55,19 +69,32 @@ const EventsScreen = ({ navigation }) => {
   const today = new Date();
   const todayString = today.toISOString().split("T")[0];
 
-  // Filter events based on selected date or show today's events
-  const filteredEvents = selectedDate
-    ? events.filter((event) => {
-        const eventDate = new Date(event.start_time)
-          .toISOString()
-          .split("T")[0];
-        return eventDate === selectedDate;
-      })
-    : events.filter((event) => {
-        const eventDate = new Date(event.start_time)
-          .toISOString()
-          .split("T")[0];
-        return eventDate >= todayString;
+  // Filter events based on selected criteria
+  const filteredEvents = events.filter((event) => {
+    // Filter by category
+    if (selectedCategory !== "all" && event.category !== selectedCategory) {
+      return false;
+    }
+
+    // Filter by selected date
+    if (selectedDate) {
+      const eventDate = new Date(event.start_time);
+      const selectedDateString = selectedDate.toISOString().split("T")[0];
+      const eventDateString = eventDate.toISOString().split("T")[0];
+      if (eventDateString !== selectedDateString) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+
+  // Get upcoming events (default view)
+  const upcomingEvents = selectedDate
+    ? filteredEvents
+    : filteredEvents.filter((event) => {
+        const eventDate = new Date(event.start_time);
+        return eventDate >= today;
       });
 
   const handleRSVP = async (event) => {
@@ -329,62 +356,292 @@ const EventsScreen = ({ navigation }) => {
     </View>
   );
 
-  const renderQuickDates = () => (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.quickDatesContainer}
-    >
-      <TouchableOpacity
-        style={[
-          styles.quickDate,
-          !selectedDate && { backgroundColor: currentTheme.colors.primary },
-          { borderColor: currentTheme.colors.border },
-        ]}
-        onPress={() => setSelectedDate(null)}
-      >
-        <Text
-          style={[
-            styles.quickDateText,
-            {
-              color: !selectedDate
-                ? "white"
-                : currentTheme.colors.textSecondary,
-            },
-          ]}
-        >
-          All Events
-        </Text>
-      </TouchableOpacity>
+  const renderQuickDates = () => {
+    const quickDates = [
+      { label: "Today", date: today },
+      {
+        label: "Tomorrow",
+        date: new Date(today.getTime() + 24 * 60 * 60 * 1000),
+      },
+      { label: "This Week", date: null }, // Special case for this week
+    ];
 
-      {["2024-02-14", "2024-02-15", "2024-02-28", "2024-02-29"].map((date) => (
+    return (
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.quickDatesContainer}
+        contentContainerStyle={styles.quickDatesContent}
+      >
         <TouchableOpacity
-          key={date}
           style={[
-            styles.quickDate,
-            selectedDate === date && {
+            styles.quickDateChip,
+            !selectedDate && {
               backgroundColor: currentTheme.colors.primary,
             },
             { borderColor: currentTheme.colors.border },
           ]}
-          onPress={() => setSelectedDate(date)}
+          onPress={() => setSelectedDate(null)}
         >
           <Text
             style={[
               styles.quickDateText,
               {
-                color:
-                  selectedDate === date
-                    ? "white"
-                    : currentTheme.colors.textSecondary,
+                color: !selectedDate
+                  ? "white"
+                  : currentTheme.colors.textSecondary,
               },
             ]}
           >
-            {formatDate(date)}
+            All Events
           </Text>
         </TouchableOpacity>
-      ))}
-    </ScrollView>
+
+        {quickDates.map((item, index) => (
+          <TouchableOpacity
+            key={index}
+            style={[
+              styles.quickDateChip,
+              selectedDate &&
+                item.date &&
+                selectedDate.toDateString() === item.date.toDateString() && {
+                  backgroundColor: currentTheme.colors.primary,
+                },
+              { borderColor: currentTheme.colors.border },
+            ]}
+            onPress={() => setSelectedDate(item.date)}
+          >
+            <Text
+              style={[
+                styles.quickDateText,
+                {
+                  color:
+                    selectedDate &&
+                    item.date &&
+                    selectedDate.toDateString() === item.date.toDateString()
+                      ? "white"
+                      : currentTheme.colors.textSecondary,
+                },
+              ]}
+            >
+              {item.label}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    );
+  };
+
+  const getActiveFilterCount = () => {
+    let count = 0;
+    if (selectedCategory !== "all") count++;
+    if (selectedDate) count++;
+    return count;
+  };
+
+  const getSelectedCategoryName = () => {
+    const category = eventCategories.find((cat) => cat.id === selectedCategory);
+    return category ? category.name : "All Events";
+  };
+
+  const selectFilter = (categoryId) => {
+    setSelectedCategory(categoryId);
+    setShowFilterModal(false);
+  };
+
+  const clearFilters = () => {
+    setSelectedCategory("all");
+    setSelectedDate(null);
+    setShowFilterModal(false);
+  };
+
+  const renderFilterModal = () => (
+    <Modal
+      visible={showFilterModal}
+      transparent={true}
+      animationType="fade"
+      onRequestClose={() => setShowFilterModal(false)}
+    >
+      <View style={styles.modalOverlay}>
+        <View
+          style={[
+            styles.filterModal,
+            {
+              backgroundColor: currentTheme.colors.card,
+              borderColor: currentTheme.colors.border,
+              shadowColor: currentTheme.colors.shadow,
+            },
+            currentTheme.shadows.lg,
+          ]}
+        >
+          <View style={styles.filterModalHeader}>
+            <Text
+              style={[
+                styles.filterModalTitle,
+                { color: currentTheme.colors.text },
+              ]}
+            >
+              Filter Events
+            </Text>
+            <TouchableOpacity
+              onPress={() => setShowFilterModal(false)}
+              style={styles.filterModalClose}
+            >
+              <MaterialIcons
+                name="close"
+                size={24}
+                color={currentTheme.colors.textSecondary}
+              />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.filterOptions}>
+            {eventCategories.map((category) => (
+              <TouchableOpacity
+                key={category.id}
+                style={[
+                  styles.filterOption,
+                  selectedCategory === category.id && {
+                    backgroundColor: currentTheme.colors.primary + "15",
+                    borderColor: currentTheme.colors.primary,
+                  },
+                  {
+                    borderColor: currentTheme.colors.border,
+                    backgroundColor:
+                      selectedCategory === category.id
+                        ? currentTheme.colors.primary + "15"
+                        : currentTheme.colors.surface,
+                  },
+                ]}
+                onPress={() => selectFilter(category.id)}
+              >
+                <View style={styles.filterOptionContent}>
+                  <MaterialIcons
+                    name={category.icon}
+                    size={20}
+                    color={
+                      selectedCategory === category.id
+                        ? currentTheme.colors.primary
+                        : currentTheme.colors.textSecondary
+                    }
+                  />
+                  <Text
+                    style={[
+                      styles.filterOptionText,
+                      {
+                        color:
+                          selectedCategory === category.id
+                            ? currentTheme.colors.primary
+                            : currentTheme.colors.text,
+                      },
+                    ]}
+                  >
+                    {category.name}
+                  </Text>
+                </View>
+                {selectedCategory === category.id && (
+                  <MaterialIcons
+                    name="check"
+                    size={20}
+                    color={currentTheme.colors.primary}
+                  />
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <View style={styles.filterModalActions}>
+            <TouchableOpacity
+              style={[
+                styles.filterModalButton,
+                styles.clearButton,
+                {
+                  borderColor: currentTheme.colors.border,
+                  backgroundColor: currentTheme.colors.surface,
+                },
+              ]}
+              onPress={clearFilters}
+            >
+              <Text
+                style={[
+                  styles.filterModalButtonText,
+                  { color: currentTheme.colors.textSecondary },
+                ]}
+              >
+                Clear All
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.filterModalButton,
+                styles.applyButton,
+                { backgroundColor: currentTheme.colors.primary },
+              ]}
+              onPress={() => setShowFilterModal(false)}
+            >
+              <Text
+                style={[
+                  styles.filterModalButtonText,
+                  { color: currentTheme.colors.background },
+                ]}
+              >
+                Apply Filters
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+
+  const renderCalendar = () => (
+    <View style={styles.calendarContainer}>
+      {/* Calendar component implementation */}
+    </View>
+  );
+
+  const renderEventsList = () => (
+    <View style={styles.eventsContainer}>
+      <FlatList
+        data={upcomingEvents}
+        renderItem={renderEvent}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.eventsList}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={currentTheme.colors.primary}
+            colors={[currentTheme.colors.primary]}
+          />
+        }
+        ListEmptyComponent={() => (
+          <View style={styles.emptyState}>
+            <MaterialIcons
+              name="event"
+              size={64}
+              color={currentTheme.colors.textSecondary}
+            />
+            <Text
+              style={[styles.emptyTitle, { color: currentTheme.colors.text }]}
+            >
+              No Events Found
+            </Text>
+            <Text
+              style={[
+                styles.emptyDescription,
+                { color: currentTheme.colors.textSecondary },
+              ]}
+            >
+              {selectedDate
+                ? "No events scheduled for this date"
+                : "Check back later for upcoming events"}
+            </Text>
+          </View>
+        )}
+      />
+    </View>
   );
 
   return (
@@ -398,47 +655,81 @@ const EventsScreen = ({ navigation }) => {
 
       <View style={styles.content}>
         {renderHeader()}
-        {renderQuickDates()}
 
-        <FlatList
-          data={filteredEvents}
-          renderItem={renderEvent}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.eventsContainer}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor={currentTheme.colors.primary}
-              colors={[currentTheme.colors.primary]}
-            />
-          }
-          ListEmptyComponent={() => (
-            <View style={styles.emptyState}>
-              <MaterialIcons
-                name="event"
-                size={64}
-                color={currentTheme.colors.textSecondary}
-              />
-              <Text
-                style={[styles.emptyTitle, { color: currentTheme.colors.text }]}
-              >
-                No Events Found
-              </Text>
-              <Text
+        {/* Active Filters */}
+        {(selectedCategory !== "all" || selectedDate) && (
+          <View style={styles.activeFiltersContainer}>
+            {selectedCategory !== "all" && (
+              <View
                 style={[
-                  styles.emptyDescription,
-                  { color: currentTheme.colors.textSecondary },
+                  styles.activeFilterChip,
+                  {
+                    backgroundColor: currentTheme.colors.primary + "15",
+                    borderColor: currentTheme.colors.primary + "30",
+                  },
                 ]}
               >
-                {selectedDate
-                  ? "No events scheduled for this date"
-                  : "Check back later for upcoming events"}
-              </Text>
-            </View>
-          )}
-        />
+                <Text
+                  style={[
+                    styles.activeFilterText,
+                    { color: currentTheme.colors.primary },
+                  ]}
+                >
+                  {getSelectedCategoryName()}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => setSelectedCategory("all")}
+                  style={styles.removeFilterButton}
+                >
+                  <MaterialIcons
+                    name="close"
+                    size={16}
+                    color={currentTheme.colors.primary}
+                  />
+                </TouchableOpacity>
+              </View>
+            )}
+            {selectedDate && (
+              <View
+                style={[
+                  styles.activeFilterChip,
+                  {
+                    backgroundColor: currentTheme.colors.secondary + "15",
+                    borderColor: currentTheme.colors.secondary + "30",
+                  },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.activeFilterText,
+                    { color: currentTheme.colors.secondary },
+                  ]}
+                >
+                  {selectedDate.toLocaleDateString()}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => setSelectedDate(null)}
+                  style={styles.removeFilterButton}
+                >
+                  <MaterialIcons
+                    name="close"
+                    size={16}
+                    color={currentTheme.colors.secondary}
+                  />
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        )}
+
+        {showCalendar ? (
+          renderCalendar()
+        ) : (
+          <>
+            {renderQuickDates()}
+            {renderEventsList()}
+          </>
+        )}
       </View>
 
       {/* Floating Action Button for Create Event */}
@@ -450,6 +741,33 @@ const EventsScreen = ({ navigation }) => {
           <MaterialIcons name="add" size={24} color="white" />
         </TouchableOpacity>
       )}
+
+      {/* Floating Filter Button */}
+      <TouchableOpacity
+        style={[
+          styles.floatingFilterButton,
+          {
+            backgroundColor: currentTheme.colors.primary,
+            shadowColor: currentTheme.colors.shadow,
+          },
+          currentTheme.shadows.lg,
+        ]}
+        onPress={() => setShowFilterModal(true)}
+      >
+        <MaterialIcons name="tune" size={24} color="white" />
+        {getActiveFilterCount() > 0 && (
+          <View
+            style={[
+              styles.filterBadge,
+              { backgroundColor: currentTheme.colors.accent },
+            ]}
+          >
+            <Text style={styles.filterBadgeText}>{getActiveFilterCount()}</Text>
+          </View>
+        )}
+      </TouchableOpacity>
+
+      {renderFilterModal()}
     </SafeAreaView>
   );
 };
@@ -487,10 +805,12 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   quickDatesContainer: {
-    paddingRight: 16,
     marginBottom: 20,
   },
-  quickDate: {
+  quickDatesContent: {
+    paddingHorizontal: 16,
+  },
+  quickDateChip: {
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
@@ -502,6 +822,9 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   eventsContainer: {
+    flex: 1,
+  },
+  eventsList: {
     paddingBottom: 100,
   },
   eventCard: {
@@ -619,6 +942,128 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  filterModal: {
+    width: "80%",
+    maxHeight: "80%",
+    backgroundColor: currentTheme.colors.card,
+    borderWidth: 1,
+    borderColor: currentTheme.colors.border,
+    borderRadius: 16,
+    padding: 16,
+  },
+  filterModalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  filterModalTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+  },
+  filterModalClose: {
+    width: 40,
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  filterOptions: {
+    marginBottom: 16,
+  },
+  filterOption: {
+    padding: 12,
+    borderWidth: 2,
+    borderColor: currentTheme.colors.border,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  filterOptionContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  filterOptionText: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  filterModalActions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  filterModalButton: {
+    padding: 12,
+    borderWidth: 2,
+    borderColor: currentTheme.colors.border,
+    borderRadius: 8,
+  },
+  clearButton: {
+    backgroundColor: currentTheme.colors.surface,
+  },
+  applyButton: {
+    backgroundColor: currentTheme.colors.primary,
+  },
+  filterModalButtonText: {
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  activeFiltersContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 20,
+  },
+  activeFilterChip: {
+    padding: 8,
+    borderWidth: 2,
+    borderColor: currentTheme.colors.border,
+    borderRadius: 20,
+  },
+  activeFilterText: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  removeFilterButton: {
+    padding: 4,
+  },
+  floatingFilterButton: {
+    position: "absolute",
+    bottom: 100,
+    right: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+  },
+  filterBadge: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    padding: 4,
+    borderRadius: 12,
+  },
+  filterBadgeText: {
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  calendarContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 40,
   },
 });
 

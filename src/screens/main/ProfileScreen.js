@@ -11,41 +11,15 @@ import {
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { useAuth } from "../../contexts/AuthContext";
+import { useApp } from "../../contexts/AppContext";
 import { lightTheme, darkTheme } from "../../styles/theme";
 
 const ProfileScreen = () => {
   const { user, profile, signOut } = useAuth();
-  const [theme, setTheme] = useState("light");
+  const { theme, toggleTheme } = useApp();
   const currentTheme = theme === "light" ? lightTheme : darkTheme;
-
-  // Load theme from storage on mount
-  useEffect(() => {
-    loadTheme();
-  }, []);
-
-  const loadTheme = async () => {
-    try {
-      const savedTheme = await AsyncStorage.getItem("theme");
-      if (savedTheme) {
-        setTheme(savedTheme);
-      }
-    } catch (error) {
-      console.error("Error loading theme:", error);
-    }
-  };
-
-  const toggleTheme = async () => {
-    const newTheme = theme === "light" ? "dark" : "light";
-    setTheme(newTheme);
-    try {
-      await AsyncStorage.setItem("theme", newTheme);
-    } catch (error) {
-      console.error("Error saving theme:", error);
-    }
-  };
 
   const handleLogout = () => {
     Alert.alert("Sign Out", "Are you sure you want to sign out?", [

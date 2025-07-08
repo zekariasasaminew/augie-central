@@ -15,12 +15,13 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 
 import { useAuth } from "../../contexts/AuthContext";
+import { useApp } from "../../contexts/AppContext";
 import { lightTheme, darkTheme, commonStyles } from "../../styles/theme";
 import { isValidEmail, isAugustanaEmail } from "../../data/mockData";
 
 const SignUpScreen = ({ navigation }) => {
   const { signUp, loading: authLoading } = useAuth();
-  const theme = "light"; // You can implement theme switching later
+  const { theme } = useApp();
   const currentTheme = theme === "light" ? lightTheme : darkTheme;
 
   const [formData, setFormData] = useState({

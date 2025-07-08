@@ -16,13 +16,14 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 
 import { useAuth } from "../../contexts/AuthContext";
+import { useApp } from "../../contexts/AppContext";
 import { lightTheme, darkTheme, commonStyles } from "../../styles/theme";
 import { isValidEmail } from "../../data/mockData";
 import { authApi } from "../../supabase/api";
 
 const SignInScreen = ({ navigation }) => {
   const { signIn, loading: authLoading } = useAuth();
-  const theme = "light"; // You can implement theme switching later
+  const { theme } = useApp();
   const currentTheme = theme === "light" ? lightTheme : darkTheme;
 
   const [email, setEmail] = useState("");

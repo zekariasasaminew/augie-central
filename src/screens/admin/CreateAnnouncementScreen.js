@@ -17,12 +17,13 @@ import { StatusBar } from "expo-status-bar";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
 import { useAuth } from "../../contexts/AuthContext";
+import { useApp } from "../../contexts/AppContext";
 import { lightTheme, darkTheme, commonStyles } from "../../styles/theme";
 import { announcementApi } from "../../supabase/api";
 
 const CreateAnnouncementScreen = ({ navigation, route }) => {
   const { user, profile } = useAuth();
-  const theme = "light"; // You can implement theme switching later
+  const { theme } = useApp();
   const currentTheme = theme === "light" ? lightTheme : darkTheme;
 
   const [formData, setFormData] = useState({
