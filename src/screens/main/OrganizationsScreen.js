@@ -15,14 +15,15 @@ import { StatusBar } from "expo-status-bar";
 
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppContext";
-import { lightTheme, darkTheme } from "../../styles/theme";
+import { getTheme } from "../../styles/theme";
 import { organizationApi } from "../../supabase/api";
 import { organizationCategories } from "../../data/mockData";
 
 const OrganizationsScreen = ({ navigation }) => {
   const { user, profile } = useAuth();
   const { theme } = useApp();
-  const currentTheme = theme === "light" ? lightTheme : darkTheme;
+
+  // Temporarily removed currentTheme to debug error
 
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [organizations, setOrganizations] = useState([]);

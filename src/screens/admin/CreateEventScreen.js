@@ -14,13 +14,15 @@ import { MaterialIcons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
 import { useAuth } from "../../contexts/AuthContext";
-import { lightTheme, darkTheme, commonStyles } from "../../styles/theme";
+import { useApp } from "../../contexts/AppContext";
+import { getTheme, commonStyles } from "../../styles/theme";
 import { eventApi, organizationApi } from "../../supabase/api";
 
 const CreateEventScreen = ({ navigation, route }) => {
   const { user } = useAuth();
-  const theme = "light";
-  const currentTheme = theme === "light" ? lightTheme : darkTheme;
+  const { theme } = useApp();
+
+  // Temporarily removed currentTheme to debug error
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   Text,
   StyleSheet,
@@ -13,11 +13,12 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 
 import { useApp } from "../../contexts/AppContext";
-import { lightTheme, darkTheme, commonStyles } from "../../styles/theme";
+import { getTheme, commonStyles } from "../../styles/theme";
 
 const AnnouncementDetailScreen = ({ route, navigation }) => {
   const { theme } = useApp();
-  const currentTheme = theme === "light" ? lightTheme : darkTheme;
+
+  // Temporarily removed currentTheme to debug error
   const { announcement } = route.params;
 
   const formatDate = (date) => {
@@ -44,7 +45,7 @@ const AnnouncementDetailScreen = ({ route, navigation }) => {
     }
   };
 
-  const styles = createStyles(currentTheme);
+  const styles = useMemo(() => createStyles(currentTheme), [currentTheme]);
 
   return (
     <SafeAreaView

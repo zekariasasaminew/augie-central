@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -16,13 +16,14 @@ import { StatusBar } from "expo-status-bar";
 
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppContext";
-import { lightTheme, darkTheme, commonStyles } from "../../styles/theme";
+import { getTheme, commonStyles } from "../../styles/theme";
 import { isValidEmail, isAugustanaEmail } from "../../data/mockData";
 
 const SignUpScreen = ({ navigation }) => {
   const { signUp, loading: authLoading } = useAuth();
   const { theme } = useApp();
-  const currentTheme = theme === "light" ? lightTheme : darkTheme;
+
+  // Temporarily removed currentTheme to debug error
 
   const [formData, setFormData] = useState({
     name: "",
@@ -122,7 +123,7 @@ const SignUpScreen = ({ navigation }) => {
     }
   };
 
-  const styles = createStyles(currentTheme);
+  const styles = useMemo(() => createStyles(currentTheme), [currentTheme]);
 
   return (
     <SafeAreaView

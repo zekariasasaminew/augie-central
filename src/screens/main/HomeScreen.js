@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import {
   View,
   Text,
@@ -15,13 +15,14 @@ import { StatusBar } from "expo-status-bar";
 
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppContext";
-import { lightTheme, darkTheme, commonStyles } from "../../styles/theme";
+import { getTheme, commonStyles } from "../../styles/theme";
 import { announcementApi } from "../../supabase/api";
 
 const HomeScreen = ({ navigation }) => {
   const { user, profile } = useAuth();
   const { theme } = useApp();
-  const currentTheme = theme === "light" ? lightTheme : darkTheme;
+
+  // Temporarily removed currentTheme to debug error
 
   const [announcements, setAnnouncements] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -951,7 +952,7 @@ const HomeScreen = ({ navigation }) => {
     </View>
   );
 
-  const styles = createStyles(currentTheme);
+  const styles = useMemo(() => createStyles(currentTheme), [currentTheme]);
 
   return (
     <SafeAreaView

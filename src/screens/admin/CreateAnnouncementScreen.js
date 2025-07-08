@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -18,13 +18,14 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppContext";
-import { lightTheme, darkTheme, commonStyles } from "../../styles/theme";
+import { getTheme, commonStyles } from "../../styles/theme";
 import { announcementApi } from "../../supabase/api";
 
 const CreateAnnouncementScreen = ({ navigation, route }) => {
   const { user, profile } = useAuth();
   const { theme } = useApp();
-  const currentTheme = theme === "light" ? lightTheme : darkTheme;
+
+  // Temporarily removed currentTheme to debug error
 
   const [formData, setFormData] = useState({
     title: "",
@@ -182,7 +183,7 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
     }
   };
 
-  const styles = createStyles(currentTheme);
+  const styles = useMemo(() => createStyles(currentTheme), [currentTheme]);
 
   return (
     <SafeAreaView

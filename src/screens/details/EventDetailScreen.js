@@ -1,10 +1,11 @@
 import { Text, StyleSheet, SafeAreaView, ScrollView } from "react-native";
 import { useApp } from "../../contexts/AppContext";
-import { lightTheme, darkTheme } from "../../styles/theme";
+import { getTheme } from "../../styles/theme";
 
 const EventDetailScreen = ({ route }) => {
   const { theme } = useApp();
-  const currentTheme = theme === "light" ? lightTheme : darkTheme;
+
+  // Temporarily removed currentTheme to debug error
   const { event } = route.params || {};
 
   return (

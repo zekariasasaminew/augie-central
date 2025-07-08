@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -17,14 +17,14 @@ import { StatusBar } from "expo-status-bar";
 
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppContext";
-import { lightTheme, darkTheme, commonStyles } from "../../styles/theme";
+import { useTheme } from "../../hooks/useTheme";
+import { commonStyles } from "../../styles/theme";
 import { isValidEmail } from "../../data/mockData";
 import { authApi } from "../../supabase/api";
 
 const SignInScreen = ({ navigation }) => {
   const { signIn, loading: authLoading } = useAuth();
   const { theme } = useApp();
-  const currentTheme = theme === "light" ? lightTheme : darkTheme;
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -121,14 +121,28 @@ const SignInScreen = ({ navigation }) => {
     }
   };
 
-  const styles = createStyles(currentTheme);
+  const styles = useMemo(
+    () =>
+      createStyles({
+        colors: {
+          primary: "#0F172A",
+          secondary: "#38BDF8",
+          accent: "#84CC16",
+          background: "#FFFFFF",
+          surface: "#F8FAFC",
+          card: "#FFFFFF",
+          text: "#0F172A",
+          textSecondary: "#475569",
+          border: "#E2E8F0",
+          notification: "#EF4444",
+        },
+      }),
+    []
+  );
 
   return (
     <SafeAreaView
-      style={[
-        commonStyles.safeArea,
-        { backgroundColor: currentTheme.colors.background },
-      ]}
+      style={[commonStyles.safeArea, { backgroundColor: "#FFFFFF" }]}
     >
       <StatusBar style={theme === "dark" ? "light" : "dark"} />
       <KeyboardAvoidingView
@@ -142,21 +156,12 @@ const SignInScreen = ({ navigation }) => {
           {/* Header */}
           <View style={styles.header}>
             <View style={styles.logoContainer}>
-              <MaterialIcons
-                name="school"
-                size={60}
-                color={currentTheme.colors.primary}
-              />
+              <MaterialIcons name="school" size={60} color="#0F172A" />
             </View>
-            <Text style={[styles.title, { color: currentTheme.colors.text }]}>
+            <Text style={[styles.title, { color: "#0F172A" }]}>
               Welcome to Augie Central
             </Text>
-            <Text
-              style={[
-                styles.subtitle,
-                { color: currentTheme.colors.textSecondary },
-              ]}
-            >
+            <Text style={[styles.subtitle, { color: "#475569" }]}>
               Sign in to access student life resources
             </Text>
           </View>
@@ -184,10 +189,8 @@ const SignInScreen = ({ navigation }) => {
                 style={[
                   styles.inputWrapper,
                   {
-                    borderColor: errors.email
-                      ? currentTheme.colors.notification
-                      : currentTheme.colors.border,
-                    backgroundColor: currentTheme.colors.surface,
+                    borderColor: errors.email ? "#EF4444" : "#E2E8F0",
+                    backgroundColor: "#F8FAFC",
                   },
                 ]}
               >

@@ -14,12 +14,13 @@ import { StatusBar } from "expo-status-bar";
 
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppContext";
-import { lightTheme, darkTheme } from "../../styles/theme";
+import { getTheme } from "../../styles/theme";
 
 const ProfileScreen = () => {
   const { user, profile, signOut } = useAuth();
   const { theme, toggleTheme } = useApp();
-  const currentTheme = theme === "light" ? lightTheme : darkTheme;
+
+  // Temporarily removed currentTheme to debug error
 
   const handleLogout = () => {
     Alert.alert("Sign Out", "Are you sure you want to sign out?", [
