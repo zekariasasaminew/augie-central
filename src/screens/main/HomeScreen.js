@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from "react";
+import React, { useState, useCallback, useEffect, useMemo } from "react";
 import {
   View,
   Text,
@@ -9,20 +9,21 @@ import {
   RefreshControl,
   Image,
   Alert,
+  Dimensions,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppContext";
-import { getTheme, commonStyles } from "../../styles/theme";
+import { commonStyles } from "../../styles/theme";
 import { announcementApi } from "../../supabase/api";
+
+const { width } = Dimensions.get("window");
 
 const HomeScreen = ({ navigation }) => {
   const { user, profile } = useAuth();
   const { theme } = useApp();
-
-  // Temporarily removed currentTheme to debug error
 
   const [announcements, setAnnouncements] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -79,11 +80,10 @@ const HomeScreen = ({ navigation }) => {
       style={[
         styles.card,
         {
-          backgroundColor: currentTheme.colors.card,
-          borderColor: currentTheme.colors.borderLight,
-          shadowColor: currentTheme.colors.shadow,
+          backgroundColor: "#FFFFFF",
+          borderColor: "#F1F5F9",
+          shadowColor: "rgba(15, 23, 42, 0.08)",
         },
-        currentTheme.shadows.md,
       ]}
       onPress={() =>
         navigation.navigate("AnnouncementDetail", { announcement: item })
@@ -94,48 +94,28 @@ const HomeScreen = ({ navigation }) => {
         <View style={styles.cardHeader}>
           <View style={styles.authorContainer}>
             <View
-              style={[
-                styles.verifiedBadge,
-                { backgroundColor: currentTheme.colors.primary },
-              ]}
+              style={[styles.verifiedBadge, { backgroundColor: "#0F172A" }]}
             >
               <MaterialIcons name="verified" size={14} color="white" />
             </View>
-            <Text
-              style={[
-                styles.authorText,
-                { color: currentTheme.colors.primary },
-              ]}
-            >
+            <Text style={[styles.authorText, { color: "#0F172A" }]}>
               {item.profiles?.name || "Office of Student Life"}
             </Text>
           </View>
           <View style={styles.dateContainer}>
-            <MaterialIcons
-              name="schedule"
-              size={14}
-              color={currentTheme.colors.textTertiary}
-            />
-            <Text
-              style={[
-                styles.dateText,
-                { color: currentTheme.colors.textTertiary },
-              ]}
-            >
+            <MaterialIcons name="schedule" size={14} color={"#64748B"} />
+            <Text style={[styles.dateText, { color: "#64748B" }]}>
               {formatDate(item.created_at)}
             </Text>
           </View>
         </View>
 
-        <Text style={[styles.titleText, { color: currentTheme.colors.text }]}>
+        <Text style={[styles.titleText, { color: "#0F172A" }]}>
           {item.title}
         </Text>
 
         <Text
-          style={[
-            styles.descriptionText,
-            { color: currentTheme.colors.textSecondary },
-          ]}
+          style={[styles.descriptionText, { color: "#475569" }]}
           numberOfLines={3}
         >
           {item.content}
@@ -150,28 +130,18 @@ const HomeScreen = ({ navigation }) => {
                 style={[
                   styles.tag,
                   {
-                    backgroundColor: currentTheme.colors.primary + "15",
-                    borderColor: currentTheme.colors.primary + "30",
+                    backgroundColor: "#0F172A" + "15",
+                    borderColor: "#0F172A" + "30",
                   },
                 ]}
               >
-                <Text
-                  style={[
-                    styles.tagText,
-                    { color: currentTheme.colors.primary },
-                  ]}
-                >
+                <Text style={[styles.tagText, { color: "#0F172A" }]}>
                   {tag}
                 </Text>
               </View>
             ))}
             {item.tags.length > 3 && (
-              <Text
-                style={[
-                  styles.moreTagsText,
-                  { color: currentTheme.colors.textTertiary },
-                ]}
-              >
+              <Text style={[styles.moreTagsText, { color: "#64748B" }]}>
                 +{item.tags.length - 3} more
               </Text>
             )}
@@ -180,34 +150,16 @@ const HomeScreen = ({ navigation }) => {
 
         <View style={styles.cardFooter}>
           <View style={styles.cardFooterLeft}>
-            <MaterialIcons
-              name="visibility"
-              size={16}
-              color={currentTheme.colors.textTertiary}
-            />
-            <Text
-              style={[
-                styles.viewsText,
-                { color: currentTheme.colors.textTertiary },
-              ]}
-            >
+            <MaterialIcons name="visibility" size={16} color={"#64748B"} />
+            <Text style={[styles.viewsText, { color: "#64748B" }]}>
               {item.views || 0} views
             </Text>
           </View>
           <View style={styles.readMoreContainer}>
-            <Text
-              style={[
-                styles.readMoreText,
-                { color: currentTheme.colors.primary },
-              ]}
-            >
+            <Text style={[styles.readMoreText, { color: "#0F172A" }]}>
               Read More
             </Text>
-            <MaterialIcons
-              name="arrow-forward"
-              size={16}
-              color={currentTheme.colors.primary}
-            />
+            <MaterialIcons name="arrow-forward" size={16} color={"#0F172A"} />
           </View>
         </View>
       </View>
@@ -219,21 +171,14 @@ const HomeScreen = ({ navigation }) => {
       {/* Main Welcome Header */}
       <View style={styles.mainHeader}>
         <View style={styles.welcomeContainer}>
-          <Text
-            style={[styles.welcomeText, { color: currentTheme.colors.text }]}
-          >
+          <Text style={[styles.welcomeText, { color: "#0F172A" }]}>
             Welcome,{" "}
             {profile?.name?.split(" ")[0] ||
               user?.user_metadata?.name?.split(" ")[0] ||
               "Student"}{" "}
             👋
           </Text>
-          <Text
-            style={[
-              styles.subtitleText,
-              { color: currentTheme.colors.textSecondary },
-            ]}
-          >
+          <Text style={[styles.subtitleText, { color: "#475569" }]}>
             {new Date().toLocaleDateString("en-US", {
               weekday: "long",
               month: "long",
@@ -245,16 +190,12 @@ const HomeScreen = ({ navigation }) => {
           style={[
             styles.searchButton,
             {
-              backgroundColor: currentTheme.colors.surface,
-              borderColor: currentTheme.colors.border,
+              backgroundColor: "#F8FAFC",
+              borderColor: "#E2E8F0",
             },
           ]}
         >
-          <MaterialIcons
-            name="search"
-            size={24}
-            color={currentTheme.colors.textSecondary}
-          />
+          <MaterialIcons name="search" size={24} color={"#475569"} />
         </TouchableOpacity>
       </View>
 
@@ -263,26 +204,17 @@ const HomeScreen = ({ navigation }) => {
         style={[
           styles.quoteCard,
           {
-            backgroundColor: currentTheme.colors.primary + "10",
-            borderColor: currentTheme.colors.primary + "20",
+            backgroundColor: "#0F172A" + "10",
+            borderColor: "#0F172A" + "20",
           },
         ]}
       >
-        <MaterialIcons
-          name="format-quote"
-          size={20}
-          color={currentTheme.colors.primary}
-        />
-        <Text style={[styles.quoteText, { color: currentTheme.colors.text }]}>
+        <MaterialIcons name="format-quote" size={20} color={"#0F172A"} />
+        <Text style={[styles.quoteText, { color: "#0F172A" }]}>
           "Success is not final, failure is not fatal: it is the courage to
           continue that counts."
         </Text>
-        <Text
-          style={[
-            styles.quoteAuthor,
-            { color: currentTheme.colors.textSecondary },
-          ]}
-        >
+        <Text style={[styles.quoteAuthor, { color: "#475569" }]}>
           — Winston Churchill
         </Text>
       </View>
@@ -290,14 +222,8 @@ const HomeScreen = ({ navigation }) => {
       {/* Today's Schedule */}
       <View style={styles.sectionContainer}>
         <View style={styles.sectionHeaderContainer}>
-          <MaterialIcons
-            name="schedule"
-            size={20}
-            color={currentTheme.colors.secondary}
-          />
-          <Text
-            style={[styles.sectionTitle, { color: currentTheme.colors.text }]}
-          >
+          <MaterialIcons name="schedule" size={20} color={"#38BDF8"} />
+          <Text style={[styles.sectionTitle, { color: "#0F172A" }]}>
             Today's Schedule
           </Text>
         </View>
@@ -307,33 +233,18 @@ const HomeScreen = ({ navigation }) => {
             style={[
               styles.scheduleItem,
               {
-                backgroundColor: currentTheme.colors.surface,
-                borderLeftColor: currentTheme.colors.secondary,
+                backgroundColor: "#F8FAFC",
+                borderLeftColor: "#38BDF8",
               },
             ]}
           >
-            <Text
-              style={[
-                styles.scheduleTime,
-                { color: currentTheme.colors.secondary },
-              ]}
-            >
+            <Text style={[styles.scheduleTime, { color: "#38BDF8" }]}>
               9:00 AM
             </Text>
-            <Text
-              style={[
-                styles.scheduleClass,
-                { color: currentTheme.colors.text },
-              ]}
-            >
+            <Text style={[styles.scheduleClass, { color: "#0F172A" }]}>
               CS301 - Data Structures
             </Text>
-            <Text
-              style={[
-                styles.scheduleLocation,
-                { color: currentTheme.colors.textSecondary },
-              ]}
-            >
+            <Text style={[styles.scheduleLocation, { color: "#475569" }]}>
               Olin Hall 205
             </Text>
           </View>
@@ -342,33 +253,18 @@ const HomeScreen = ({ navigation }) => {
             style={[
               styles.scheduleItem,
               {
-                backgroundColor: currentTheme.colors.surface,
-                borderLeftColor: currentTheme.colors.accent,
+                backgroundColor: "#F8FAFC",
+                borderLeftColor: "#84CC16",
               },
             ]}
           >
-            <Text
-              style={[
-                styles.scheduleTime,
-                { color: currentTheme.colors.accent },
-              ]}
-            >
+            <Text style={[styles.scheduleTime, { color: "#84CC16" }]}>
               2:00 PM
             </Text>
-            <Text
-              style={[
-                styles.scheduleClass,
-                { color: currentTheme.colors.text },
-              ]}
-            >
+            <Text style={[styles.scheduleClass, { color: "#0F172A" }]}>
               Biochem Lab
             </Text>
-            <Text
-              style={[
-                styles.scheduleLocation,
-                { color: currentTheme.colors.textSecondary },
-              ]}
-            >
+            <Text style={[styles.scheduleLocation, { color: "#475569" }]}>
               Science Building B12
             </Text>
           </View>
@@ -377,33 +273,18 @@ const HomeScreen = ({ navigation }) => {
             style={[
               styles.scheduleItem,
               {
-                backgroundColor: currentTheme.colors.surface,
-                borderLeftColor: currentTheme.colors.warning,
+                backgroundColor: "#F8FAFC",
+                borderLeftColor: "#F59E0B",
               },
             ]}
           >
-            <Text
-              style={[
-                styles.scheduleTime,
-                { color: currentTheme.colors.warning },
-              ]}
-            >
+            <Text style={[styles.scheduleTime, { color: "#F59E0B" }]}>
               4:30 PM
             </Text>
-            <Text
-              style={[
-                styles.scheduleClass,
-                { color: currentTheme.colors.text },
-              ]}
-            >
+            <Text style={[styles.scheduleClass, { color: "#0F172A" }]}>
               Study Group - Statistics
             </Text>
-            <Text
-              style={[
-                styles.scheduleLocation,
-                { color: currentTheme.colors.textSecondary },
-              ]}
-            >
+            <Text style={[styles.scheduleLocation, { color: "#475569" }]}>
               Library Study Room 3
             </Text>
           </View>
@@ -413,14 +294,8 @@ const HomeScreen = ({ navigation }) => {
       {/* Campus Services Quick Access */}
       <View style={styles.sectionContainer}>
         <View style={styles.sectionHeaderContainer}>
-          <MaterialIcons
-            name="local-hospital"
-            size={20}
-            color={currentTheme.colors.info}
-          />
-          <Text
-            style={[styles.sectionTitle, { color: currentTheme.colors.text }]}
-          >
+          <MaterialIcons name="local-hospital" size={20} color={"#38BDF8"} />
+          <Text style={[styles.sectionTitle, { color: "#0F172A" }]}>
             Campus Services
           </Text>
         </View>
@@ -430,21 +305,14 @@ const HomeScreen = ({ navigation }) => {
             style={[
               styles.serviceCard,
               {
-                backgroundColor: currentTheme.colors.card,
-                borderColor: currentTheme.colors.border,
-                shadowColor: currentTheme.colors.shadow,
+                backgroundColor: "#FFFFFF",
+                borderColor: "#E2E8F0",
+                shadowColor: "rgba(15, 23, 42, 0.08)",
               },
-              currentTheme.shadows.sm,
             ]}
           >
-            <MaterialIcons
-              name="local-hospital"
-              size={28}
-              color={currentTheme.colors.error}
-            />
-            <Text
-              style={[styles.serviceText, { color: currentTheme.colors.text }]}
-            >
+            <MaterialIcons name="local-hospital" size={28} color={"#EF4444"} />
+            <Text style={[styles.serviceText, { color: "#0F172A" }]}>
               Health Center
             </Text>
           </TouchableOpacity>
@@ -453,21 +321,14 @@ const HomeScreen = ({ navigation }) => {
             style={[
               styles.serviceCard,
               {
-                backgroundColor: currentTheme.colors.card,
-                borderColor: currentTheme.colors.border,
-                shadowColor: currentTheme.colors.shadow,
+                backgroundColor: "#FFFFFF",
+                borderColor: "#E2E8F0",
+                shadowColor: "rgba(15, 23, 42, 0.08)",
               },
-              currentTheme.shadows.sm,
             ]}
           >
-            <MaterialIcons
-              name="psychology"
-              size={28}
-              color={currentTheme.colors.secondary}
-            />
-            <Text
-              style={[styles.serviceText, { color: currentTheme.colors.text }]}
-            >
+            <MaterialIcons name="psychology" size={28} color={"#38BDF8"} />
+            <Text style={[styles.serviceText, { color: "#0F172A" }]}>
               Counseling
             </Text>
           </TouchableOpacity>
@@ -476,21 +337,14 @@ const HomeScreen = ({ navigation }) => {
             style={[
               styles.serviceCard,
               {
-                backgroundColor: currentTheme.colors.card,
-                borderColor: currentTheme.colors.border,
-                shadowColor: currentTheme.colors.shadow,
+                backgroundColor: "#FFFFFF",
+                borderColor: "#E2E8F0",
+                shadowColor: "rgba(15, 23, 42, 0.08)",
               },
-              currentTheme.shadows.sm,
             ]}
           >
-            <MaterialIcons
-              name="computer"
-              size={28}
-              color={currentTheme.colors.primary}
-            />
-            <Text
-              style={[styles.serviceText, { color: currentTheme.colors.text }]}
-            >
+            <MaterialIcons name="computer" size={28} color={"#0F172A"} />
+            <Text style={[styles.serviceText, { color: "#0F172A" }]}>
               IT Help
             </Text>
           </TouchableOpacity>
@@ -499,21 +353,14 @@ const HomeScreen = ({ navigation }) => {
             style={[
               styles.serviceCard,
               {
-                backgroundColor: currentTheme.colors.card,
-                borderColor: currentTheme.colors.border,
-                shadowColor: currentTheme.colors.shadow,
+                backgroundColor: "#FFFFFF",
+                borderColor: "#E2E8F0",
+                shadowColor: "rgba(15, 23, 42, 0.08)",
               },
-              currentTheme.shadows.sm,
             ]}
           >
-            <MaterialIcons
-              name="restaurant"
-              size={28}
-              color={currentTheme.colors.accent}
-            />
-            <Text
-              style={[styles.serviceText, { color: currentTheme.colors.text }]}
-            >
+            <MaterialIcons name="restaurant" size={28} color={"#84CC16"} />
+            <Text style={[styles.serviceText, { color: "#0F172A" }]}>
               Dining Menu
             </Text>
           </TouchableOpacity>
@@ -523,14 +370,8 @@ const HomeScreen = ({ navigation }) => {
       {/* Upcoming Deadlines */}
       <View style={styles.sectionContainer}>
         <View style={styles.sectionHeaderContainer}>
-          <MaterialIcons
-            name="assignment-late"
-            size={20}
-            color={currentTheme.colors.warning}
-          />
-          <Text
-            style={[styles.sectionTitle, { color: currentTheme.colors.text }]}
-          >
+          <MaterialIcons name="assignment-late" size={20} color={"#F59E0B"} />
+          <Text style={[styles.sectionTitle, { color: "#0F172A" }]}>
             Upcoming Deadlines
           </Text>
         </View>
@@ -540,102 +381,60 @@ const HomeScreen = ({ navigation }) => {
             style={[
               styles.deadlineItem,
               {
-                backgroundColor: currentTheme.colors.surface,
-                borderColor: currentTheme.colors.border,
+                backgroundColor: "#F8FAFC",
+                borderColor: "#E2E8F0",
               },
             ]}
           >
             <View style={styles.deadlineInfo}>
-              <Text
-                style={[
-                  styles.deadlineTitle,
-                  { color: currentTheme.colors.text },
-                ]}
-              >
+              <Text style={[styles.deadlineTitle, { color: "#0F172A" }]}>
                 CS301 Assignment 3
               </Text>
-              <Text
-                style={[
-                  styles.deadlineDate,
-                  { color: currentTheme.colors.warning },
-                ]}
-              >
+              <Text style={[styles.deadlineDate, { color: "#F59E0B" }]}>
                 Due Tomorrow
               </Text>
             </View>
-            <MaterialIcons
-              name="priority-high"
-              size={20}
-              color={currentTheme.colors.warning}
-            />
+            <MaterialIcons name="priority-high" size={20} color={"#F59E0B"} />
           </View>
 
           <View
             style={[
               styles.deadlineItem,
               {
-                backgroundColor: currentTheme.colors.surface,
-                borderColor: currentTheme.colors.border,
+                backgroundColor: "#F8FAFC",
+                borderColor: "#E2E8F0",
               },
             ]}
           >
             <View style={styles.deadlineInfo}>
-              <Text
-                style={[
-                  styles.deadlineTitle,
-                  { color: currentTheme.colors.text },
-                ]}
-              >
+              <Text style={[styles.deadlineTitle, { color: "#0F172A" }]}>
                 Club Registration Form
               </Text>
-              <Text
-                style={[
-                  styles.deadlineDate,
-                  { color: currentTheme.colors.textSecondary },
-                ]}
-              >
+              <Text style={[styles.deadlineDate, { color: "#475569" }]}>
                 Due Friday
               </Text>
             </View>
-            <MaterialIcons
-              name="assignment"
-              size={20}
-              color={currentTheme.colors.textSecondary}
-            />
+            <MaterialIcons name="assignment" size={20} color={"#475569"} />
           </View>
 
           <View
             style={[
               styles.deadlineItem,
               {
-                backgroundColor: currentTheme.colors.surface,
-                borderColor: currentTheme.colors.border,
+                backgroundColor: "#F8FAFC",
+                borderColor: "#E2E8F0",
               },
             ]}
           >
             <View style={styles.deadlineInfo}>
-              <Text
-                style={[
-                  styles.deadlineTitle,
-                  { color: currentTheme.colors.text },
-                ]}
-              >
+              <Text style={[styles.deadlineTitle, { color: "#0F172A" }]}>
                 Intramural Soccer Signup
               </Text>
-              <Text
-                style={[
-                  styles.deadlineDate,
-                  { color: currentTheme.colors.textSecondary },
-                ]}
-              >
+              <Text style={[styles.deadlineDate, { color: "#475569" }]}>
                 Due Monday
               </Text>
             </View>
-            <MaterialIcons
-              name="sports-soccer"
-              size={20}
-              color={currentTheme.colors.textSecondary}
-            />
+            <MaterialIcons name="sports-soccer" size={20} color={"#475569"} />
           </View>
         </View>
       </View>
@@ -643,14 +442,8 @@ const HomeScreen = ({ navigation }) => {
       {/* QR Code Section */}
       <View style={styles.sectionContainer}>
         <View style={styles.sectionHeaderContainer}>
-          <MaterialIcons
-            name="qr-code"
-            size={20}
-            color={currentTheme.colors.primary}
-          />
-          <Text
-            style={[styles.sectionTitle, { color: currentTheme.colors.text }]}
-          >
+          <MaterialIcons name="qr-code" size={20} color={"#0F172A"} />
+          <Text style={[styles.sectionTitle, { color: "#0F172A" }]}>
             Class Check-In
           </Text>
         </View>
@@ -659,34 +452,19 @@ const HomeScreen = ({ navigation }) => {
           style={[
             styles.qrCard,
             {
-              backgroundColor: currentTheme.colors.card,
-              borderColor: currentTheme.colors.border,
-              shadowColor: currentTheme.colors.shadow,
+              backgroundColor: "#FFFFFF",
+              borderColor: "#E2E8F0",
+              shadowColor: "rgba(15, 23, 42, 0.08)",
             },
-            currentTheme.shadows.md,
           ]}
         >
-          <View
-            style={[
-              styles.qrPlaceholder,
-              { backgroundColor: currentTheme.colors.surface },
-            ]}
-          >
-            <MaterialIcons
-              name="qr-code-scanner"
-              size={48}
-              color={currentTheme.colors.primary}
-            />
+          <View style={[styles.qrPlaceholder, { backgroundColor: "#F8FAFC" }]}>
+            <MaterialIcons name="qr-code-scanner" size={48} color={"#0F172A"} />
           </View>
-          <Text style={[styles.qrText, { color: currentTheme.colors.text }]}>
+          <Text style={[styles.qrText, { color: "#0F172A" }]}>
             Tap to scan for attendance
           </Text>
-          <Text
-            style={[
-              styles.qrSubtext,
-              { color: currentTheme.colors.textSecondary },
-            ]}
-          >
+          <Text style={[styles.qrSubtext, { color: "#475569" }]}>
             Quick check-in for your next class
           </Text>
         </TouchableOpacity>
@@ -698,29 +476,17 @@ const HomeScreen = ({ navigation }) => {
           style={[
             styles.statCard,
             {
-              backgroundColor: currentTheme.colors.surface,
-              borderColor: currentTheme.colors.borderLight,
-              shadowColor: currentTheme.colors.shadow,
+              backgroundColor: "#F8FAFC",
+              borderColor: "#F1F5F9",
+              shadowColor: "rgba(15, 23, 42, 0.08)",
             },
-            currentTheme.shadows.sm,
           ]}
         >
-          <MaterialIcons
-            name="campaign"
-            size={24}
-            color={currentTheme.colors.primary}
-          />
-          <Text
-            style={[styles.statNumber, { color: currentTheme.colors.text }]}
-          >
+          <MaterialIcons name="campaign" size={24} color={"#0F172A"} />
+          <Text style={[styles.statNumber, { color: "#0F172A" }]}>
             {announcements.length}
           </Text>
-          <Text
-            style={[
-              styles.statLabel,
-              { color: currentTheme.colors.textSecondary },
-            ]}
-          >
+          <Text style={[styles.statLabel, { color: "#475569" }]}>
             Announcements
           </Text>
         </View>
@@ -729,29 +495,15 @@ const HomeScreen = ({ navigation }) => {
           style={[
             styles.statCard,
             {
-              backgroundColor: currentTheme.colors.surface,
-              borderColor: currentTheme.colors.borderLight,
-              shadowColor: currentTheme.colors.shadow,
+              backgroundColor: "#F8FAFC",
+              borderColor: "#F1F5F9",
+              shadowColor: "rgba(15, 23, 42, 0.08)",
             },
-            currentTheme.shadows.sm,
           ]}
         >
-          <MaterialIcons
-            name="event"
-            size={24}
-            color={currentTheme.colors.secondary}
-          />
-          <Text
-            style={[styles.statNumber, { color: currentTheme.colors.text }]}
-          >
-            8
-          </Text>
-          <Text
-            style={[
-              styles.statLabel,
-              { color: currentTheme.colors.textSecondary },
-            ]}
-          >
+          <MaterialIcons name="event" size={24} color={"#38BDF8"} />
+          <Text style={[styles.statNumber, { color: "#0F172A" }]}>8</Text>
+          <Text style={[styles.statLabel, { color: "#475569" }]}>
             This Week
           </Text>
         </View>
@@ -760,45 +512,23 @@ const HomeScreen = ({ navigation }) => {
           style={[
             styles.statCard,
             {
-              backgroundColor: currentTheme.colors.surface,
-              borderColor: currentTheme.colors.borderLight,
-              shadowColor: currentTheme.colors.shadow,
+              backgroundColor: "#F8FAFC",
+              borderColor: "#F1F5F9",
+              shadowColor: "rgba(15, 23, 42, 0.08)",
             },
-            currentTheme.shadows.sm,
           ]}
         >
-          <MaterialIcons
-            name="groups"
-            size={24}
-            color={currentTheme.colors.accent}
-          />
-          <Text
-            style={[styles.statNumber, { color: currentTheme.colors.text }]}
-          >
-            4
-          </Text>
-          <Text
-            style={[
-              styles.statLabel,
-              { color: currentTheme.colors.textSecondary },
-            ]}
-          >
-            My Clubs
-          </Text>
+          <MaterialIcons name="groups" size={24} color={"#84CC16"} />
+          <Text style={[styles.statNumber, { color: "#0F172A" }]}>4</Text>
+          <Text style={[styles.statLabel, { color: "#475569" }]}>My Clubs</Text>
         </View>
       </View>
 
       {/* Suggested Events */}
       <View style={styles.sectionContainer}>
         <View style={styles.sectionHeaderContainer}>
-          <MaterialIcons
-            name="lightbulb"
-            size={20}
-            color={currentTheme.colors.accent}
-          />
-          <Text
-            style={[styles.sectionTitle, { color: currentTheme.colors.text }]}
-          >
+          <MaterialIcons name="lightbulb" size={20} color={"#84CC16"} />
+          <Text style={[styles.sectionTitle, { color: "#0F172A" }]}>
             Suggested for You
           </Text>
         </View>
@@ -808,44 +538,28 @@ const HomeScreen = ({ navigation }) => {
             style={[
               styles.suggestedEventCard,
               {
-                backgroundColor: currentTheme.colors.card,
-                borderColor: currentTheme.colors.border,
-                shadowColor: currentTheme.colors.shadow,
+                backgroundColor: "#FFFFFF",
+                borderColor: "#E2E8F0",
+                shadowColor: "rgba(15, 23, 42, 0.08)",
               },
-              currentTheme.shadows.sm,
             ]}
           >
             <View style={styles.suggestedEventHeader}>
-              <Text
-                style={[
-                  styles.suggestedEventTitle,
-                  { color: currentTheme.colors.text },
-                ]}
-              >
+              <Text style={[styles.suggestedEventTitle, { color: "#0F172A" }]}>
                 Career Fair 2024
               </Text>
               <TouchableOpacity
                 style={[
                   styles.interestedButton,
-                  { backgroundColor: currentTheme.colors.accent + "15" },
+                  { backgroundColor: "#84CC16" + "15" },
                 ]}
               >
-                <Text
-                  style={[
-                    styles.interestedText,
-                    { color: currentTheme.colors.accent },
-                  ]}
-                >
+                <Text style={[styles.interestedText, { color: "#84CC16" }]}>
                   Interested
                 </Text>
               </TouchableOpacity>
             </View>
-            <Text
-              style={[
-                styles.suggestedEventDetails,
-                { color: currentTheme.colors.textSecondary },
-              ]}
-            >
+            <Text style={[styles.suggestedEventDetails, { color: "#475569" }]}>
               Tomorrow, 10:00 AM • Student Center
             </Text>
           </TouchableOpacity>
@@ -854,44 +568,28 @@ const HomeScreen = ({ navigation }) => {
             style={[
               styles.suggestedEventCard,
               {
-                backgroundColor: currentTheme.colors.card,
-                borderColor: currentTheme.colors.border,
-                shadowColor: currentTheme.colors.shadow,
+                backgroundColor: "#FFFFFF",
+                borderColor: "#E2E8F0",
+                shadowColor: "rgba(15, 23, 42, 0.08)",
               },
-              currentTheme.shadows.sm,
             ]}
           >
             <View style={styles.suggestedEventHeader}>
-              <Text
-                style={[
-                  styles.suggestedEventTitle,
-                  { color: currentTheme.colors.text },
-                ]}
-              >
+              <Text style={[styles.suggestedEventTitle, { color: "#0F172A" }]}>
                 Coding Workshop
               </Text>
               <TouchableOpacity
                 style={[
                   styles.interestedButton,
-                  { backgroundColor: currentTheme.colors.secondary + "15" },
+                  { backgroundColor: "#38BDF8" + "15" },
                 ]}
               >
-                <Text
-                  style={[
-                    styles.interestedText,
-                    { color: currentTheme.colors.secondary },
-                  ]}
-                >
+                <Text style={[styles.interestedText, { color: "#38BDF8" }]}>
                   Interested
                 </Text>
               </TouchableOpacity>
             </View>
-            <Text
-              style={[
-                styles.suggestedEventDetails,
-                { color: currentTheme.colors.textSecondary },
-              ]}
-            >
+            <Text style={[styles.suggestedEventDetails, { color: "#475569" }]}>
               Friday, 3:00 PM • Computer Lab
             </Text>
           </TouchableOpacity>
@@ -901,14 +599,8 @@ const HomeScreen = ({ navigation }) => {
       {/* Latest Announcements Section Header */}
       <View style={styles.sectionContainer}>
         <View style={styles.sectionHeaderContainer}>
-          <MaterialIcons
-            name="campaign"
-            size={20}
-            color={currentTheme.colors.primary}
-          />
-          <Text
-            style={[styles.sectionTitle, { color: currentTheme.colors.text }]}
-          >
+          <MaterialIcons name="campaign" size={20} color={"#0F172A"} />
+          <Text style={[styles.sectionTitle, { color: "#0F172A" }]}>
             Latest Announcements
           </Text>
           {profile?.is_admin && (
@@ -916,10 +608,9 @@ const HomeScreen = ({ navigation }) => {
               style={[
                 styles.addButton,
                 {
-                  backgroundColor: currentTheme.colors.primary,
-                  shadowColor: currentTheme.colors.shadow,
+                  backgroundColor: "#0F172A",
+                  shadowColor: "rgba(15, 23, 42, 0.08)",
                 },
-                currentTheme.shadows.sm,
               ]}
               onPress={handleCreateAnnouncement}
             >
@@ -933,33 +624,21 @@ const HomeScreen = ({ navigation }) => {
 
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
-      <MaterialIcons
-        name="campaign"
-        size={64}
-        color={currentTheme.colors.textSecondary}
-      />
-      <Text style={[styles.emptyTitle, { color: currentTheme.colors.text }]}>
+      <MaterialIcons name="campaign" size={64} color={"#475569"} />
+      <Text style={[styles.emptyTitle, { color: "#0F172A" }]}>
         No Announcements Yet
       </Text>
-      <Text
-        style={[
-          styles.emptyDescription,
-          { color: currentTheme.colors.textSecondary },
-        ]}
-      >
+      <Text style={[styles.emptyDescription, { color: "#475569" }]}>
         Check back later for updates from the Office of Student Life
       </Text>
     </View>
   );
 
-  const styles = useMemo(() => createStyles(currentTheme), [currentTheme]);
+  const styles = useMemo(() => createStyles(), []);
 
   return (
     <SafeAreaView
-      style={[
-        commonStyles.safeArea,
-        { backgroundColor: currentTheme.colors.background },
-      ]}
+      style={[commonStyles.safeArea, { backgroundColor: "#FFFFFF" }]}
     >
       <StatusBar style={theme === "dark" ? "light" : "dark"} />
 
@@ -973,8 +652,8 @@ const HomeScreen = ({ navigation }) => {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={currentTheme.colors.primary}
-            colors={[currentTheme.colors.primary]}
+            tintColor={"#0F172A"}
+            colors={["#0F172A"]}
           />
         }
         contentContainerStyle={styles.container}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
   View,
   Text,
@@ -10,20 +10,21 @@ import {
   ScrollView,
   RefreshControl,
   Modal,
+  Dimensions,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppContext";
-import { getTheme } from "../../styles/theme";
+
 import { eventApi } from "../../supabase/api";
+
+const { width } = Dimensions.get("window");
 
 const EventsScreen = ({ navigation }) => {
   const { user, profile } = useAuth();
-  const { theme } = useApp();
-
-  // Temporarily removed currentTheme to debug error
+  const { theme, savedEvents, saveEvent, removeEvent } = useApp();
 
   const [events, setEvents] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -177,25 +178,18 @@ const EventsScreen = ({ navigation }) => {
   };
 
   const getStatusColor = (event) => {
-    if (event.user_has_rsvped) return currentTheme.colors.success;
+    if (event.user_has_rsvped) return "#10B981";
     const eventDate = new Date(event.start_time);
     const today = new Date();
-    if (eventDate < today) return currentTheme.colors.textSecondary;
-    return currentTheme.colors.primary;
+    if (eventDate < today) return "#475569";
+    return "#0F172A";
   };
 
   const renderEvent = ({ item }) => (
-    <View
-      style={[styles.eventCard, { backgroundColor: currentTheme.colors.card }]}
-    >
+    <View style={[styles.eventCard, { backgroundColor: "#FFFFFF" }]}>
       <View style={styles.eventHeader}>
         <View style={styles.eventDate}>
-          <Text
-            style={[
-              styles.eventDateText,
-              { color: currentTheme.colors.primary },
-            ]}
-          >
+          <Text style={[styles.eventDateText, { color: "#0F172A" }]}>
             {formatDate(item.start_time)}
           </Text>
           <View
@@ -210,61 +204,33 @@ const EventsScreen = ({ navigation }) => {
           <MaterialIcons
             name={getCategoryIcon(item.category)}
             size={16}
-            color={currentTheme.colors.textSecondary}
+            color={"#475569"}
           />
-          <Text
-            style={[
-              styles.categoryText,
-              { color: currentTheme.colors.textSecondary },
-            ]}
-          >
+          <Text style={[styles.categoryText, { color: "#475569" }]}>
             {item.student_organizations?.name || "Event"}
           </Text>
         </View>
       </View>
 
-      <Text style={[styles.eventTitle, { color: currentTheme.colors.text }]}>
+      <Text style={[styles.eventTitle, { color: "#0F172A" }]}>
         {item.title}
       </Text>
 
-      <Text
-        style={[
-          styles.eventDescription,
-          { color: currentTheme.colors.textSecondary },
-        ]}
-      >
+      <Text style={[styles.eventDescription, { color: "#475569" }]}>
         {item.description || "No description available"}
       </Text>
 
       <View style={styles.eventDetails}>
         <View style={styles.eventDetail}>
-          <MaterialIcons
-            name="schedule"
-            size={16}
-            color={currentTheme.colors.textSecondary}
-          />
-          <Text
-            style={[
-              styles.eventDetailText,
-              { color: currentTheme.colors.textSecondary },
-            ]}
-          >
+          <MaterialIcons name="schedule" size={16} color={"#475569"} />
+          <Text style={[styles.eventDetailText, { color: "#475569" }]}>
             {formatTime(item.start_time)} - {formatTime(item.end_time)}
           </Text>
         </View>
 
         <View style={styles.eventDetail}>
-          <MaterialIcons
-            name="location-on"
-            size={16}
-            color={currentTheme.colors.textSecondary}
-          />
-          <Text
-            style={[
-              styles.eventDetailText,
-              { color: currentTheme.colors.textSecondary },
-            ]}
-          >
+          <MaterialIcons name="location-on" size={16} color={"#475569"} />
+          <Text style={[styles.eventDetailText, { color: "#475569" }]}>
             {item.location}
           </Text>
         </View>
@@ -272,17 +238,8 @@ const EventsScreen = ({ navigation }) => {
 
       <View style={styles.eventFooter}>
         <View style={styles.attendeeInfo}>
-          <MaterialIcons
-            name="people"
-            size={16}
-            color={currentTheme.colors.textSecondary}
-          />
-          <Text
-            style={[
-              styles.attendeeText,
-              { color: currentTheme.colors.textSecondary },
-            ]}
-          >
+          <MaterialIcons name="people" size={16} color={"#475569"} />
+          <Text style={[styles.attendeeText, { color: "#475569" }]}>
             {item.rsvp_count || 0} attending
           </Text>
         </View>
@@ -291,8 +248,8 @@ const EventsScreen = ({ navigation }) => {
           style={[
             styles.rsvpButton,
             item.user_has_rsvped
-              ? { backgroundColor: currentTheme.colors.success }
-              : { backgroundColor: currentTheme.colors.primary },
+              ? { backgroundColor: "#10B981" }
+              : { backgroundColor: "#0F172A" },
           ]}
           onPress={() => handleRSVP(item)}
         >
@@ -329,27 +286,20 @@ const EventsScreen = ({ navigation }) => {
   const renderHeader = () => (
     <View style={styles.header}>
       <View style={styles.titleContainer}>
-        <Text style={[styles.title, { color: currentTheme.colors.text }]}>
-          Campus Events
-        </Text>
+        <Text style={[styles.title, { color: "#0F172A" }]}>Campus Events</Text>
         <TouchableOpacity
-          style={[
-            styles.calendarToggle,
-            { backgroundColor: currentTheme.colors.surface },
-          ]}
+          style={[styles.calendarToggle, { backgroundColor: "#F8FAFC" }]}
           onPress={() => setShowCalendar(!showCalendar)}
         >
           <MaterialIcons
             name={showCalendar ? "calendar-view-month" : "list"}
             size={20}
-            color={currentTheme.colors.primary}
+            color={"#0F172A"}
           />
         </TouchableOpacity>
       </View>
 
-      <Text
-        style={[styles.subtitle, { color: currentTheme.colors.textSecondary }]}
-      >
+      <Text style={[styles.subtitle, { color: "#475569" }]}>
         {selectedDate
           ? `Events for ${formatDate(selectedDate)}`
           : "Upcoming events and activities"}
@@ -378,9 +328,9 @@ const EventsScreen = ({ navigation }) => {
           style={[
             styles.quickDateChip,
             !selectedDate && {
-              backgroundColor: currentTheme.colors.primary,
+              backgroundColor: "#0F172A",
             },
-            { borderColor: currentTheme.colors.border },
+            { borderColor: "#E2E8F0" },
           ]}
           onPress={() => setSelectedDate(null)}
         >
@@ -388,9 +338,7 @@ const EventsScreen = ({ navigation }) => {
             style={[
               styles.quickDateText,
               {
-                color: !selectedDate
-                  ? "white"
-                  : currentTheme.colors.textSecondary,
+                color: !selectedDate ? "white" : "#475569",
               },
             ]}
           >
@@ -406,9 +354,9 @@ const EventsScreen = ({ navigation }) => {
               selectedDate &&
                 item.date &&
                 selectedDate.toDateString() === item.date.toDateString() && {
-                  backgroundColor: currentTheme.colors.primary,
+                  backgroundColor: "#0F172A",
                 },
-              { borderColor: currentTheme.colors.border },
+              { borderColor: "#E2E8F0" },
             ]}
             onPress={() => setSelectedDate(item.date)}
           >
@@ -421,7 +369,7 @@ const EventsScreen = ({ navigation }) => {
                     item.date &&
                     selectedDate.toDateString() === item.date.toDateString()
                       ? "white"
-                      : currentTheme.colors.textSecondary,
+                      : "#475569",
                 },
               ]}
             >
@@ -468,31 +416,22 @@ const EventsScreen = ({ navigation }) => {
           style={[
             styles.filterModal,
             {
-              backgroundColor: currentTheme.colors.card,
-              borderColor: currentTheme.colors.border,
-              shadowColor: currentTheme.colors.shadow,
+              backgroundColor: "#FFFFFF",
+              borderColor: "#E2E8F0",
+              shadowColor: "rgba(15, 23, 42, 0.08)",
             },
-            currentTheme.shadows.lg,
+            ,
           ]}
         >
           <View style={styles.filterModalHeader}>
-            <Text
-              style={[
-                styles.filterModalTitle,
-                { color: currentTheme.colors.text },
-              ]}
-            >
+            <Text style={[styles.filterModalTitle, { color: "#0F172A" }]}>
               Filter Events
             </Text>
             <TouchableOpacity
               onPress={() => setShowFilterModal(false)}
               style={styles.filterModalClose}
             >
-              <MaterialIcons
-                name="close"
-                size={24}
-                color={currentTheme.colors.textSecondary}
-              />
+              <MaterialIcons name="close" size={24} color={"#475569"} />
             </TouchableOpacity>
           </View>
 
@@ -503,15 +442,15 @@ const EventsScreen = ({ navigation }) => {
                 style={[
                   styles.filterOption,
                   selectedCategory === category.id && {
-                    backgroundColor: currentTheme.colors.primary + "15",
-                    borderColor: currentTheme.colors.primary,
+                    backgroundColor: "#0F172A" + "15",
+                    borderColor: "#0F172A",
                   },
                   {
-                    borderColor: currentTheme.colors.border,
+                    borderColor: "#E2E8F0",
                     backgroundColor:
                       selectedCategory === category.id
-                        ? currentTheme.colors.primary + "15"
-                        : currentTheme.colors.surface,
+                        ? "#0F172A" + "15"
+                        : "#F8FAFC",
                   },
                 ]}
                 onPress={() => selectFilter(category.id)}
@@ -521,9 +460,7 @@ const EventsScreen = ({ navigation }) => {
                     name={category.icon}
                     size={20}
                     color={
-                      selectedCategory === category.id
-                        ? currentTheme.colors.primary
-                        : currentTheme.colors.textSecondary
+                      selectedCategory === category.id ? "#0F172A" : "#475569"
                     }
                   />
                   <Text
@@ -532,8 +469,8 @@ const EventsScreen = ({ navigation }) => {
                       {
                         color:
                           selectedCategory === category.id
-                            ? currentTheme.colors.primary
-                            : currentTheme.colors.text,
+                            ? "#0F172A"
+                            : "#0F172A",
                       },
                     ]}
                   >
@@ -541,11 +478,7 @@ const EventsScreen = ({ navigation }) => {
                   </Text>
                 </View>
                 {selectedCategory === category.id && (
-                  <MaterialIcons
-                    name="check"
-                    size={20}
-                    color={currentTheme.colors.primary}
-                  />
+                  <MaterialIcons name="check" size={20} color={"#0F172A"} />
                 )}
               </TouchableOpacity>
             ))}
@@ -557,17 +490,14 @@ const EventsScreen = ({ navigation }) => {
                 styles.filterModalButton,
                 styles.clearButton,
                 {
-                  borderColor: currentTheme.colors.border,
-                  backgroundColor: currentTheme.colors.surface,
+                  borderColor: "#E2E8F0",
+                  backgroundColor: "#F8FAFC",
                 },
               ]}
               onPress={clearFilters}
             >
               <Text
-                style={[
-                  styles.filterModalButtonText,
-                  { color: currentTheme.colors.textSecondary },
-                ]}
+                style={[styles.filterModalButtonText, { color: "#475569" }]}
               >
                 Clear All
               </Text>
@@ -576,15 +506,12 @@ const EventsScreen = ({ navigation }) => {
               style={[
                 styles.filterModalButton,
                 styles.applyButton,
-                { backgroundColor: currentTheme.colors.primary },
+                { backgroundColor: "#0F172A" },
               ]}
               onPress={() => setShowFilterModal(false)}
             >
               <Text
-                style={[
-                  styles.filterModalButtonText,
-                  { color: currentTheme.colors.background },
-                ]}
+                style={[styles.filterModalButtonText, { color: "#FFFFFF" }]}
               >
                 Apply Filters
               </Text>
@@ -613,28 +540,17 @@ const EventsScreen = ({ navigation }) => {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={currentTheme.colors.primary}
-            colors={[currentTheme.colors.primary]}
+            tintColor={"#0F172A"}
+            colors={["#0F172A"]}
           />
         }
         ListEmptyComponent={() => (
           <View style={styles.emptyState}>
-            <MaterialIcons
-              name="event"
-              size={64}
-              color={currentTheme.colors.textSecondary}
-            />
-            <Text
-              style={[styles.emptyTitle, { color: currentTheme.colors.text }]}
-            >
+            <MaterialIcons name="event" size={64} color={"#475569"} />
+            <Text style={[styles.emptyTitle, { color: "#0F172A" }]}>
               No Events Found
             </Text>
-            <Text
-              style={[
-                styles.emptyDescription,
-                { color: currentTheme.colors.textSecondary },
-              ]}
-            >
+            <Text style={[styles.emptyDescription, { color: "#475569" }]}>
               {selectedDate
                 ? "No events scheduled for this date"
                 : "Check back later for upcoming events"}
@@ -646,12 +562,7 @@ const EventsScreen = ({ navigation }) => {
   );
 
   return (
-    <SafeAreaView
-      style={[
-        styles.container,
-        { backgroundColor: currentTheme.colors.background },
-      ]}
-    >
+    <SafeAreaView style={[styles.container, { backgroundColor: "#FFFFFF" }]}>
       <StatusBar style={theme === "dark" ? "light" : "dark"} />
 
       <View style={styles.content}>
@@ -665,28 +576,19 @@ const EventsScreen = ({ navigation }) => {
                 style={[
                   styles.activeFilterChip,
                   {
-                    backgroundColor: currentTheme.colors.primary + "15",
-                    borderColor: currentTheme.colors.primary + "30",
+                    backgroundColor: "#0F172A" + "15",
+                    borderColor: "#0F172A" + "30",
                   },
                 ]}
               >
-                <Text
-                  style={[
-                    styles.activeFilterText,
-                    { color: currentTheme.colors.primary },
-                  ]}
-                >
+                <Text style={[styles.activeFilterText, { color: "#0F172A" }]}>
                   {getSelectedCategoryName()}
                 </Text>
                 <TouchableOpacity
                   onPress={() => setSelectedCategory("all")}
                   style={styles.removeFilterButton}
                 >
-                  <MaterialIcons
-                    name="close"
-                    size={16}
-                    color={currentTheme.colors.primary}
-                  />
+                  <MaterialIcons name="close" size={16} color={"#0F172A"} />
                 </TouchableOpacity>
               </View>
             )}
@@ -695,15 +597,15 @@ const EventsScreen = ({ navigation }) => {
                 style={[
                   styles.activeFilterChip,
                   {
-                    backgroundColor: currentTheme.colors.secondary + "15",
-                    borderColor: currentTheme.colors.secondary + "30",
+                    backgroundColor: "#38BDF8" + "15",
+                    borderColor: "#38BDF8" + "30",
                   },
                 ]}
               >
                 <Text
                   style={[
                     styles.activeFilterText,
-                    { color: currentTheme.colors.secondary },
+                    { color: "#38BDF8" },
                   ]}
                 >
                   {selectedDate.toLocaleDateString()}
@@ -715,7 +617,7 @@ const EventsScreen = ({ navigation }) => {
                   <MaterialIcons
                     name="close"
                     size={16}
-                    color={currentTheme.colors.secondary}
+                    color={"#38BDF8"}
                   />
                 </TouchableOpacity>
               </View>
@@ -736,7 +638,7 @@ const EventsScreen = ({ navigation }) => {
       {/* Floating Action Button for Create Event */}
       {profile?.is_admin && (
         <TouchableOpacity
-          style={[styles.fab, { backgroundColor: currentTheme.colors.primary }]}
+          style={[styles.fab, { backgroundColor: "#0F172A" }]}
           onPress={() => navigation.navigate("CreateEvent")}
         >
           <MaterialIcons name="add" size={24} color="white" />
@@ -748,10 +650,10 @@ const EventsScreen = ({ navigation }) => {
         style={[
           styles.floatingFilterButton,
           {
-            backgroundColor: currentTheme.colors.primary,
-            shadowColor: currentTheme.colors.shadow,
+            backgroundColor: "#0F172A",
+            shadowColor: "rgba(15, 23, 42, 0.08)",
           },
-          currentTheme.shadows.lg,
+          ,
         ]}
         onPress={() => setShowFilterModal(true)}
       >
@@ -760,7 +662,7 @@ const EventsScreen = ({ navigation }) => {
           <View
             style={[
               styles.filterBadge,
-              { backgroundColor: currentTheme.colors.accent },
+              { backgroundColor: "#84CC16" },
             ]}
           >
             <Text style={styles.filterBadgeText}>{getActiveFilterCount()}</Text>
@@ -953,9 +855,9 @@ const styles = StyleSheet.create({
   filterModal: {
     width: "80%",
     maxHeight: "80%",
-    backgroundColor: currentTheme.colors.card,
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: currentTheme.colors.border,
+    borderColor: "#E2E8F0",
     borderRadius: 16,
     padding: 16,
   },
@@ -981,7 +883,7 @@ const styles = StyleSheet.create({
   filterOption: {
     padding: 12,
     borderWidth: 2,
-    borderColor: currentTheme.colors.border,
+    borderColor: "#E2E8F0",
     borderRadius: 8,
     marginBottom: 8,
   },
@@ -1002,14 +904,14 @@ const styles = StyleSheet.create({
   filterModalButton: {
     padding: 12,
     borderWidth: 2,
-    borderColor: currentTheme.colors.border,
+    borderColor: "#E2E8F0",
     borderRadius: 8,
   },
   clearButton: {
-    backgroundColor: currentTheme.colors.surface,
+    backgroundColor: "#F8FAFC",
   },
   applyButton: {
-    backgroundColor: currentTheme.colors.primary,
+    backgroundColor: "#0F172A",
   },
   filterModalButtonText: {
     fontSize: 14,
@@ -1024,7 +926,7 @@ const styles = StyleSheet.create({
   activeFilterChip: {
     padding: 8,
     borderWidth: 2,
-    borderColor: currentTheme.colors.border,
+    borderColor: "#E2E8F0",
     borderRadius: 20,
   },
   activeFilterText: {

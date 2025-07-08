@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Text,
   StyleSheet,
@@ -8,18 +8,20 @@ import {
   TouchableOpacity,
   Linking,
   Alert,
+  Share,
+  Dimensions,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
-
+import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppContext";
-import { getTheme, commonStyles } from "../../styles/theme";
+
+const { width } = Dimensions.get("window");
 
 const AnnouncementDetailScreen = ({ route, navigation }) => {
-  const { theme } = useApp();
-
-  // Temporarily removed currentTheme to debug error
   const { announcement } = route.params;
+  const { user, profile } = useAuth();
+  const { theme } = useApp();
 
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString("en-US", {
@@ -45,14 +47,11 @@ const AnnouncementDetailScreen = ({ route, navigation }) => {
     }
   };
 
-  const styles = useMemo(() => createStyles(currentTheme), [currentTheme]);
+  const styles = useMemo(() => createStyles(), []);
 
   return (
     <SafeAreaView
-      style={[
-        commonStyles.safeArea,
-        { backgroundColor: currentTheme.colors.background },
-      ]}
+      style={[commonStyles.safeArea, { backgroundColor: "#FFFFFF" }]}
     >
       <StatusBar style={theme === "dark" ? "light" : "dark"} />
 
@@ -62,21 +61,13 @@ const AnnouncementDetailScreen = ({ route, navigation }) => {
           onPress={() => navigation.goBack()}
           style={styles.backButton}
         >
-          <MaterialIcons
-            name="arrow-back"
-            size={24}
-            color={currentTheme.colors.text}
-          />
+          <MaterialIcons name="arrow-back" size={24} color={"#0F172A"} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: currentTheme.colors.text }]}>
+        <Text style={[styles.headerTitle, { color: "#0F172A" }]}>
           Announcement
         </Text>
         <TouchableOpacity style={styles.shareButton}>
-          <MaterialIcons
-            name="share"
-            size={24}
-            color={currentTheme.colors.text}
-          />
+          <MaterialIcons name="share" size={24} color={"#0F172A"} />
         </TouchableOpacity>
       </View>
 
@@ -90,18 +81,13 @@ const AnnouncementDetailScreen = ({ route, navigation }) => {
           style={[
             styles.authorSection,
             {
-              backgroundColor: currentTheme.colors.surface,
-              borderColor: currentTheme.colors.borderLight,
+              backgroundColor: "#F8FAFC",
+              borderColor: "#E2E8F0",
             },
           ]}
         >
           <View style={styles.authorContainer}>
-            <View
-              style={[
-                styles.authorAvatar,
-                { backgroundColor: currentTheme.colors.primary },
-              ]}
-            >
+            <View style={[styles.authorAvatar, { backgroundColor: "#0F172A" }]}>
               <Text style={styles.authorAvatarText}>
                 {(
                   announcement.profiles?.name || "Office of Student Life"
@@ -110,45 +96,27 @@ const AnnouncementDetailScreen = ({ route, navigation }) => {
             </View>
             <View style={styles.authorInfo}>
               <View style={styles.authorNameContainer}>
-                <Text
-                  style={[
-                    styles.authorName,
-                    { color: currentTheme.colors.text },
-                  ]}
-                >
+                <Text style={[styles.authorName, { color: "#0F172A" }]}>
                   {announcement.profiles?.name || "Office of Student Life"}
                 </Text>
                 <View
-                  style={[
-                    styles.verifiedBadge,
-                    { backgroundColor: currentTheme.colors.primary },
-                  ]}
+                  style={[styles.verifiedBadge, { backgroundColor: "#0F172A" }]}
                 >
                   <MaterialIcons name="verified" size={14} color="white" />
                 </View>
               </View>
-              <Text
-                style={[
-                  styles.authorTitle,
-                  { color: currentTheme.colors.textSecondary },
-                ]}
-              >
+              <Text style={[styles.authorTitle, { color: "#475569" }]}>
                 {announcement.profiles?.title || "Student Life Administration"}
               </Text>
             </View>
           </View>
-          <Text
-            style={[
-              styles.publishDate,
-              { color: currentTheme.colors.textTertiary },
-            ]}
-          >
+          <Text style={[styles.publishDate, { color: "#64748B" }]}>
             {formatDate(announcement.created_at)}
           </Text>
         </View>
 
         {/* Title */}
-        <Text style={[styles.title, { color: currentTheme.colors.text }]}>
+        <Text style={[styles.title, { color: "#0F172A" }]}>
           {announcement.title}
         </Text>
 
@@ -161,17 +129,12 @@ const AnnouncementDetailScreen = ({ route, navigation }) => {
                 style={[
                   styles.tag,
                   {
-                    backgroundColor: currentTheme.colors.primary + "15",
-                    borderColor: currentTheme.colors.primary + "30",
+                    backgroundColor: "#0F172A" + "15",
+                    borderColor: "#0F172A" + "30",
                   },
                 ]}
               >
-                <Text
-                  style={[
-                    styles.tagText,
-                    { color: currentTheme.colors.primary },
-                  ]}
-                >
+                <Text style={[styles.tagText, { color: "#0F172A" }]}>
                   {tag}
                 </Text>
               </View>
@@ -184,19 +147,14 @@ const AnnouncementDetailScreen = ({ route, navigation }) => {
           style={[
             styles.contentSection,
             {
-              backgroundColor: currentTheme.colors.card,
-              borderColor: currentTheme.colors.borderLight,
-              shadowColor: currentTheme.colors.shadow,
+              backgroundColor: "#FFFFFF",
+              borderColor: "#E2E8F0",
+              shadowColor: "rgba(15, 23, 42, 0.08)",
             },
-            currentTheme.shadows.sm,
+            ,
           ]}
         >
-          <Text
-            style={[
-              styles.content,
-              { color: currentTheme.colors.textSecondary },
-            ]}
-          >
+          <Text style={[styles.content, { color: "#475569" }]}>
             {announcement.content || announcement.description}
           </Text>
         </View>
@@ -207,8 +165,8 @@ const AnnouncementDetailScreen = ({ route, navigation }) => {
             style={[
               styles.eventSection,
               {
-                backgroundColor: currentTheme.colors.accent + "10",
-                borderColor: currentTheme.colors.accent + "30",
+                backgroundColor: "#84CC16" + "10",
+                borderColor: "#84CC16" + "30",
               },
             ]}
           >
@@ -216,12 +174,12 @@ const AnnouncementDetailScreen = ({ route, navigation }) => {
               <MaterialIcons
                 name="event"
                 size={24}
-                color={currentTheme.colors.accent}
+                color={"#84CC16"}
               />
               <Text
                 style={[
                   styles.eventTitle,
-                  { color: currentTheme.colors.accent },
+                  { color: "#84CC16" },
                 ]}
               >
                 Event Details
@@ -229,17 +187,8 @@ const AnnouncementDetailScreen = ({ route, navigation }) => {
             </View>
             <View style={styles.eventDetails}>
               <View style={styles.eventDetailRow}>
-                <MaterialIcons
-                  name="schedule"
-                  size={18}
-                  color={currentTheme.colors.textSecondary}
-                />
-                <Text
-                  style={[
-                    styles.eventDetailText,
-                    { color: currentTheme.colors.textSecondary },
-                  ]}
-                >
+                <MaterialIcons name="schedule" size={18} color={"#475569"} />
+                <Text style={[styles.eventDetailText, { color: "#475569" }]}>
                   {formatDate(announcement.event_date)}
                 </Text>
               </View>
@@ -248,14 +197,9 @@ const AnnouncementDetailScreen = ({ route, navigation }) => {
                   <MaterialIcons
                     name="location-on"
                     size={18}
-                    color={currentTheme.colors.textSecondary}
+                    color={"#475569"}
                   />
-                  <Text
-                    style={[
-                      styles.eventDetailText,
-                      { color: currentTheme.colors.textSecondary },
-                    ]}
-                  >
+                  <Text style={[styles.eventDetailText, { color: "#475569" }]}>
                     {announcement.event_location}
                   </Text>
                 </View>
@@ -270,25 +214,20 @@ const AnnouncementDetailScreen = ({ route, navigation }) => {
             style={[
               styles.linksSection,
               {
-                backgroundColor: currentTheme.colors.card,
-                borderColor: currentTheme.colors.borderLight,
-                shadowColor: currentTheme.colors.shadow,
+                backgroundColor: "#FFFFFF",
+                borderColor: "#E2E8F0",
+                shadowColor: "rgba(15, 23, 42, 0.08)",
               },
-              currentTheme.shadows.sm,
+              ,
             ]}
           >
             <View style={styles.linksSectionHeader}>
               <MaterialIcons
                 name="link"
                 size={20}
-                color={currentTheme.colors.secondary}
+                color={"#38BDF8"}
               />
-              <Text
-                style={[
-                  styles.linksSectionTitle,
-                  { color: currentTheme.colors.text },
-                ]}
-              >
+              <Text style={[styles.linksSectionTitle, { color: "#0F172A" }]}>
                 Related Links
               </Text>
             </View>
@@ -298,8 +237,8 @@ const AnnouncementDetailScreen = ({ route, navigation }) => {
                 style={[
                   styles.linkItem,
                   {
-                    backgroundColor: currentTheme.colors.surface,
-                    borderColor: currentTheme.colors.border,
+                    backgroundColor: "#F8FAFC",
+                    borderColor: "#E2E8F0",
                   },
                 ]}
                 onPress={() => handleLinkPress(link.url)}
@@ -308,23 +247,20 @@ const AnnouncementDetailScreen = ({ route, navigation }) => {
                   <MaterialIcons
                     name="open-in-new"
                     size={18}
-                    color={currentTheme.colors.secondary}
+                    color={"#38BDF8"}
                   />
                   <View style={styles.linkTextContainer}>
                     <Text
                       style={[
                         styles.linkTitle,
-                        { color: currentTheme.colors.secondary },
+                        { color: "#38BDF8" },
                       ]}
                     >
                       {link.title || link.url}
                     </Text>
                     {link.description && (
                       <Text
-                        style={[
-                          styles.linkDescription,
-                          { color: currentTheme.colors.textSecondary },
-                        ]}
+                        style={[styles.linkDescription, { color: "#475569" }]}
                       >
                         {link.description}
                       </Text>
@@ -334,7 +270,7 @@ const AnnouncementDetailScreen = ({ route, navigation }) => {
                 <MaterialIcons
                   name="chevron-right"
                   size={20}
-                  color={currentTheme.colors.textTertiary}
+                  color={"#64748B"}
                 />
               </TouchableOpacity>
             ))}
@@ -347,24 +283,21 @@ const AnnouncementDetailScreen = ({ route, navigation }) => {
             style={[
               styles.attachmentsSection,
               {
-                backgroundColor: currentTheme.colors.card,
-                borderColor: currentTheme.colors.borderLight,
-                shadowColor: currentTheme.colors.shadow,
+                backgroundColor: "#FFFFFF",
+                borderColor: "#E2E8F0",
+                shadowColor: "rgba(15, 23, 42, 0.08)",
               },
-              currentTheme.shadows.sm,
+              ,
             ]}
           >
             <View style={styles.attachmentsSectionHeader}>
               <MaterialIcons
                 name="attachment"
                 size={20}
-                color={currentTheme.colors.warning}
+                color={"#F59E0B"}
               />
               <Text
-                style={[
-                  styles.attachmentsSectionTitle,
-                  { color: currentTheme.colors.text },
-                ]}
+                style={[styles.attachmentsSectionTitle, { color: "#0F172A" }]}
               >
                 Attachments
               </Text>
@@ -375,8 +308,8 @@ const AnnouncementDetailScreen = ({ route, navigation }) => {
                 style={[
                   styles.attachmentItem,
                   {
-                    backgroundColor: currentTheme.colors.surface,
-                    borderColor: currentTheme.colors.border,
+                    backgroundColor: "#F8FAFC",
+                    borderColor: "#E2E8F0",
                   },
                 ]}
                 onPress={() => handleLinkPress(attachment.url)}
@@ -385,32 +318,18 @@ const AnnouncementDetailScreen = ({ route, navigation }) => {
                   <MaterialIcons
                     name="insert-drive-file"
                     size={24}
-                    color={currentTheme.colors.warning}
+                    color={"#F59E0B"}
                   />
                   <View style={styles.attachmentTextContainer}>
-                    <Text
-                      style={[
-                        styles.attachmentName,
-                        { color: currentTheme.colors.text },
-                      ]}
-                    >
+                    <Text style={[styles.attachmentName, { color: "#0F172A" }]}>
                       {attachment.name}
                     </Text>
-                    <Text
-                      style={[
-                        styles.attachmentSize,
-                        { color: currentTheme.colors.textSecondary },
-                      ]}
-                    >
+                    <Text style={[styles.attachmentSize, { color: "#475569" }]}>
                       {attachment.size || "Unknown size"}
                     </Text>
                   </View>
                 </View>
-                <MaterialIcons
-                  name="download"
-                  size={20}
-                  color={currentTheme.colors.textTertiary}
-                />
+                <MaterialIcons name="download" size={20} color={"#64748B"} />
               </TouchableOpacity>
             ))}
           </View>
@@ -421,38 +340,20 @@ const AnnouncementDetailScreen = ({ route, navigation }) => {
           style={[
             styles.statsSection,
             {
-              backgroundColor: currentTheme.colors.surface,
-              borderColor: currentTheme.colors.borderLight,
+              backgroundColor: "#F8FAFC",
+              borderColor: "#E2E8F0",
             },
           ]}
         >
           <View style={styles.statItem}>
-            <MaterialIcons
-              name="visibility"
-              size={18}
-              color={currentTheme.colors.textTertiary}
-            />
-            <Text
-              style={[
-                styles.statText,
-                { color: currentTheme.colors.textTertiary },
-              ]}
-            >
+            <MaterialIcons name="visibility" size={18} color={"#64748B"} />
+            <Text style={[styles.statText, { color: "#64748B" }]}>
               {announcement.views || 0} views
             </Text>
           </View>
           <View style={styles.statItem}>
-            <MaterialIcons
-              name="schedule"
-              size={18}
-              color={currentTheme.colors.textTertiary}
-            />
-            <Text
-              style={[
-                styles.statText,
-                { color: currentTheme.colors.textTertiary },
-              ]}
-            >
+            <MaterialIcons name="schedule" size={18} color={"#64748B"} />
+            <Text style={[styles.statText, { color: "#64748B" }]}>
               Published {new Date(announcement.created_at).toLocaleDateString()}
             </Text>
           </View>

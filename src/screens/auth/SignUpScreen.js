@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -16,14 +16,12 @@ import { StatusBar } from "expo-status-bar";
 
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppContext";
-import { getTheme, commonStyles } from "../../styles/theme";
+import { commonStyles } from "../../styles/theme";
 import { isValidEmail, isAugustanaEmail } from "../../data/mockData";
 
 const SignUpScreen = ({ navigation }) => {
   const { signUp, loading: authLoading } = useAuth();
   const { theme } = useApp();
-
-  // Temporarily removed currentTheme to debug error
 
   const [formData, setFormData] = useState({
     name: "",
@@ -123,14 +121,11 @@ const SignUpScreen = ({ navigation }) => {
     }
   };
 
-  const styles = useMemo(() => createStyles(currentTheme), [currentTheme]);
+  const styles = useMemo(() => createStyles(), []);
 
   return (
     <SafeAreaView
-      style={[
-        commonStyles.safeArea,
-        { backgroundColor: currentTheme.colors.background },
-      ]}
+      style={[commonStyles.safeArea, { backgroundColor: "#FFFFFF" }]}
     >
       <StatusBar style={theme === "dark" ? "light" : "dark"} />
       <KeyboardAvoidingView
@@ -144,21 +139,12 @@ const SignUpScreen = ({ navigation }) => {
           {/* Header */}
           <View style={styles.header}>
             <View style={styles.logoContainer}>
-              <MaterialIcons
-                name="person-add"
-                size={60}
-                color={currentTheme.colors.primary}
-              />
+              <MaterialIcons name="person-add" size={60} color={"#0F172A"} />
             </View>
-            <Text style={[styles.title, { color: currentTheme.colors.text }]}>
+            <Text style={[styles.title, { color: "#0F172A" }]}>
               Join Augie Central
             </Text>
-            <Text
-              style={[
-                styles.subtitle,
-                { color: currentTheme.colors.textSecondary },
-              ]}
-            >
+            <Text style={[styles.subtitle, { color: "#475569" }]}>
               Create your account to get started
             </Text>
           </View>
@@ -167,7 +153,7 @@ const SignUpScreen = ({ navigation }) => {
           <View style={styles.form}>
             {/* Name Input */}
             <View style={styles.inputContainer}>
-              <Text style={[styles.label, { color: currentTheme.colors.text }]}>
+              <Text style={[styles.label, { color: "#0F172A" }]}>
                 Full Name
               </Text>
               <View
@@ -175,22 +161,22 @@ const SignUpScreen = ({ navigation }) => {
                   styles.inputWrapper,
                   {
                     borderColor: errors.name
-                      ? currentTheme.colors.notification
-                      : currentTheme.colors.border,
-                    backgroundColor: currentTheme.colors.surface,
+                      ? "#EF4444"
+                      : "#E2E8F0",
+                    backgroundColor: "#F8FAFC",
                   },
                 ]}
               >
                 <MaterialIcons
                   name="person"
                   size={20}
-                  color={currentTheme.colors.textSecondary}
+                  color={"#475569"}
                   style={styles.inputIcon}
                 />
                 <TextInput
-                  style={[styles.input, { color: currentTheme.colors.text }]}
+                  style={[styles.input, { color: "#0F172A" }]}
                   placeholder="Enter your full name"
-                  placeholderTextColor={currentTheme.colors.textSecondary}
+                  placeholderTextColor={"#475569"}
                   value={formData.name}
                   onChangeText={(value) => updateField("name", value)}
                   autoCapitalize="words"
@@ -201,7 +187,7 @@ const SignUpScreen = ({ navigation }) => {
                 <Text
                   style={[
                     styles.errorText,
-                    { color: currentTheme.colors.notification },
+                    { color: "#EF4444" },
                   ]}
                 >
                   {errors.name}
@@ -211,7 +197,7 @@ const SignUpScreen = ({ navigation }) => {
 
             {/* Email Input */}
             <View style={styles.inputContainer}>
-              <Text style={[styles.label, { color: currentTheme.colors.text }]}>
+              <Text style={[styles.label, { color: "#0F172A" }]}>
                 Augustana Email
               </Text>
               <View
@@ -219,22 +205,22 @@ const SignUpScreen = ({ navigation }) => {
                   styles.inputWrapper,
                   {
                     borderColor: errors.email
-                      ? currentTheme.colors.notification
-                      : currentTheme.colors.border,
-                    backgroundColor: currentTheme.colors.surface,
+                      ? "#EF4444"
+                      : "#E2E8F0",
+                    backgroundColor: "#F8FAFC",
                   },
                 ]}
               >
                 <MaterialIcons
                   name="email"
                   size={20}
-                  color={currentTheme.colors.textSecondary}
+                  color={"#475569"}
                   style={styles.inputIcon}
                 />
                 <TextInput
-                  style={[styles.input, { color: currentTheme.colors.text }]}
+                  style={[styles.input, { color: "#0F172A" }]}
                   placeholder="your.name@augustana.edu"
-                  placeholderTextColor={currentTheme.colors.textSecondary}
+                  placeholderTextColor={"#475569"}
                   value={formData.email}
                   onChangeText={(value) => updateField("email", value)}
                   keyboardType="email-address"
@@ -246,7 +232,7 @@ const SignUpScreen = ({ navigation }) => {
                 <Text
                   style={[
                     styles.errorText,
-                    { color: currentTheme.colors.notification },
+                    { color: "#EF4444" },
                   ]}
                 >
                   {errors.email}
@@ -257,32 +243,28 @@ const SignUpScreen = ({ navigation }) => {
             {/* Year and Major Row */}
             <View style={styles.row}>
               <View style={[styles.inputContainer, styles.halfWidth]}>
-                <Text
-                  style={[styles.label, { color: currentTheme.colors.text }]}
-                >
-                  Year
-                </Text>
+                <Text style={[styles.label, { color: "#0F172A" }]}>Year</Text>
                 <View
                   style={[
                     styles.inputWrapper,
                     {
                       borderColor: errors.year
-                        ? currentTheme.colors.notification
-                        : currentTheme.colors.border,
-                      backgroundColor: currentTheme.colors.surface,
+                        ? "#EF4444"
+                        : "#E2E8F0",
+                      backgroundColor: "#F8FAFC",
                     },
                   ]}
                 >
                   <MaterialIcons
                     name="school"
                     size={20}
-                    color={currentTheme.colors.textSecondary}
+                    color={"#475569"}
                     style={styles.inputIcon}
                   />
                   <TextInput
-                    style={[styles.input, { color: currentTheme.colors.text }]}
+                    style={[styles.input, { color: "#0F172A" }]}
                     placeholder="Freshman"
-                    placeholderTextColor={currentTheme.colors.textSecondary}
+                    placeholderTextColor={"#475569"}
                     value={formData.year}
                     onChangeText={(value) => updateField("year", value)}
                     autoCapitalize="words"
@@ -292,7 +274,7 @@ const SignUpScreen = ({ navigation }) => {
                   <Text
                     style={[
                       styles.errorText,
-                      { color: currentTheme.colors.notification },
+                      { color: "#EF4444" },
                     ]}
                   >
                     {errors.year}
@@ -301,32 +283,28 @@ const SignUpScreen = ({ navigation }) => {
               </View>
 
               <View style={[styles.inputContainer, styles.halfWidth]}>
-                <Text
-                  style={[styles.label, { color: currentTheme.colors.text }]}
-                >
-                  Major
-                </Text>
+                <Text style={[styles.label, { color: "#0F172A" }]}>Major</Text>
                 <View
                   style={[
                     styles.inputWrapper,
                     {
                       borderColor: errors.major
-                        ? currentTheme.colors.notification
-                        : currentTheme.colors.border,
-                      backgroundColor: currentTheme.colors.surface,
+                        ? "#EF4444"
+                        : "#E2E8F0",
+                      backgroundColor: "#F8FAFC",
                     },
                   ]}
                 >
                   <MaterialIcons
                     name="book"
                     size={20}
-                    color={currentTheme.colors.textSecondary}
+                    color={"#475569"}
                     style={styles.inputIcon}
                   />
                   <TextInput
-                    style={[styles.input, { color: currentTheme.colors.text }]}
+                    style={[styles.input, { color: "#0F172A" }]}
                     placeholder="Computer Science"
-                    placeholderTextColor={currentTheme.colors.textSecondary}
+                    placeholderTextColor={"#475569"}
                     value={formData.major}
                     onChangeText={(value) => updateField("major", value)}
                     autoCapitalize="words"
@@ -336,7 +314,7 @@ const SignUpScreen = ({ navigation }) => {
                   <Text
                     style={[
                       styles.errorText,
-                      { color: currentTheme.colors.notification },
+                      { color: "#EF4444" },
                     ]}
                   >
                     {errors.major}
@@ -347,30 +325,28 @@ const SignUpScreen = ({ navigation }) => {
 
             {/* Password Input */}
             <View style={styles.inputContainer}>
-              <Text style={[styles.label, { color: currentTheme.colors.text }]}>
-                Password
-              </Text>
+              <Text style={[styles.label, { color: "#0F172A" }]}>Password</Text>
               <View
                 style={[
                   styles.inputWrapper,
                   {
                     borderColor: errors.password
-                      ? currentTheme.colors.notification
-                      : currentTheme.colors.border,
-                    backgroundColor: currentTheme.colors.surface,
+                      ? "#EF4444"
+                      : "#E2E8F0",
+                    backgroundColor: "#F8FAFC",
                   },
                 ]}
               >
                 <MaterialIcons
                   name="lock"
                   size={20}
-                  color={currentTheme.colors.textSecondary}
+                  color={"#475569"}
                   style={styles.inputIcon}
                 />
                 <TextInput
-                  style={[styles.input, { color: currentTheme.colors.text }]}
+                  style={[styles.input, { color: "#0F172A" }]}
                   placeholder="Create a password"
-                  placeholderTextColor={currentTheme.colors.textSecondary}
+                  placeholderTextColor={"#475569"}
                   value={formData.password}
                   onChangeText={(value) => updateField("password", value)}
                   secureTextEntry={!showPassword}
@@ -383,7 +359,7 @@ const SignUpScreen = ({ navigation }) => {
                   <MaterialIcons
                     name={showPassword ? "visibility" : "visibility-off"}
                     size={20}
-                    color={currentTheme.colors.textSecondary}
+                    color={"#475569"}
                   />
                 </TouchableOpacity>
               </View>
@@ -391,7 +367,7 @@ const SignUpScreen = ({ navigation }) => {
                 <Text
                   style={[
                     styles.errorText,
-                    { color: currentTheme.colors.notification },
+                    { color: "#EF4444" },
                   ]}
                 >
                   {errors.password}
@@ -401,7 +377,7 @@ const SignUpScreen = ({ navigation }) => {
 
             {/* Confirm Password Input */}
             <View style={styles.inputContainer}>
-              <Text style={[styles.label, { color: currentTheme.colors.text }]}>
+              <Text style={[styles.label, { color: "#0F172A" }]}>
                 Confirm Password
               </Text>
               <View
@@ -409,22 +385,22 @@ const SignUpScreen = ({ navigation }) => {
                   styles.inputWrapper,
                   {
                     borderColor: errors.confirmPassword
-                      ? currentTheme.colors.notification
-                      : currentTheme.colors.border,
-                    backgroundColor: currentTheme.colors.surface,
+                      ? "#EF4444"
+                      : "#E2E8F0",
+                    backgroundColor: "#F8FAFC",
                   },
                 ]}
               >
                 <MaterialIcons
                   name="lock"
                   size={20}
-                  color={currentTheme.colors.textSecondary}
+                  color={"#475569"}
                   style={styles.inputIcon}
                 />
                 <TextInput
-                  style={[styles.input, { color: currentTheme.colors.text }]}
+                  style={[styles.input, { color: "#0F172A" }]}
                   placeholder="Confirm your password"
-                  placeholderTextColor={currentTheme.colors.textSecondary}
+                  placeholderTextColor={"#475569"}
                   value={formData.confirmPassword}
                   onChangeText={(value) =>
                     updateField("confirmPassword", value)
@@ -439,7 +415,7 @@ const SignUpScreen = ({ navigation }) => {
                   <MaterialIcons
                     name={showConfirmPassword ? "visibility" : "visibility-off"}
                     size={20}
-                    color={currentTheme.colors.textSecondary}
+                    color={"#475569"}
                   />
                 </TouchableOpacity>
               </View>
@@ -447,7 +423,7 @@ const SignUpScreen = ({ navigation }) => {
                 <Text
                   style={[
                     styles.errorText,
-                    { color: currentTheme.colors.notification },
+                    { color: "#EF4444" },
                   ]}
                 >
                   {errors.confirmPassword}
@@ -459,18 +435,13 @@ const SignUpScreen = ({ navigation }) => {
             <TouchableOpacity
               style={[
                 styles.signUpButton,
-                { backgroundColor: currentTheme.colors.primary },
+                { backgroundColor: "#0F172A" },
                 (loading || authLoading) && styles.disabledButton,
               ]}
               onPress={handleSignUp}
               disabled={loading || authLoading}
             >
-              <Text
-                style={[
-                  styles.signUpButtonText,
-                  { color: currentTheme.colors.background },
-                ]}
-              >
+              <Text style={[styles.signUpButtonText, { color: "#FFFFFF" }]}>
                 {loading || authLoading
                   ? "Creating Account..."
                   : "Create Account"}
@@ -479,21 +450,11 @@ const SignUpScreen = ({ navigation }) => {
 
             {/* Sign In Link */}
             <View style={styles.signInContainer}>
-              <Text
-                style={[
-                  styles.signInText,
-                  { color: currentTheme.colors.textSecondary },
-                ]}
-              >
+              <Text style={[styles.signInText, { color: "#475569" }]}>
                 Already have an account?{" "}
               </Text>
               <TouchableOpacity onPress={() => navigation.goBack()}>
-                <Text
-                  style={[
-                    styles.signInLink,
-                    { color: currentTheme.colors.primary },
-                  ]}
-                >
+                <Text style={[styles.signInLink, { color: "#0F172A" }]}>
                   Sign In
                 </Text>
               </TouchableOpacity>

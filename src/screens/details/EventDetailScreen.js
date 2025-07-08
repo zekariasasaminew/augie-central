@@ -1,49 +1,27 @@
+import React from "react";
 import { Text, StyleSheet, SafeAreaView, ScrollView } from "react-native";
 import { useApp } from "../../contexts/AppContext";
-import { getTheme } from "../../styles/theme";
 
 const EventDetailScreen = ({ route }) => {
   const { theme } = useApp();
-
-  // Temporarily removed currentTheme to debug error
   const { event } = route.params || {};
 
   return (
-    <SafeAreaView
-      style={[
-        styles.container,
-        { backgroundColor: currentTheme.colors.background },
-      ]}
-    >
+    <SafeAreaView style={[styles.container, { backgroundColor: "#FFFFFF" }]}>
       <ScrollView style={styles.content}>
-        <Text style={[styles.title, { color: currentTheme.colors.text }]}>
+        <Text style={[styles.title, { color: "#0F172A" }]}>
           {event?.title || "Event"}
         </Text>
-        <Text
-          style={[
-            styles.description,
-            { color: currentTheme.colors.textSecondary },
-          ]}
-        >
+        <Text style={[styles.description, { color: "#475569" }]}>
           {event?.description || "Event details"}
         </Text>
         {event?.location && (
-          <Text
-            style={[
-              styles.detail,
-              { color: currentTheme.colors.textSecondary },
-            ]}
-          >
+          <Text style={[styles.detail, { color: "#475569" }]}>
             📍 {event.location}
           </Text>
         )}
         {event?.time && (
-          <Text
-            style={[
-              styles.detail,
-              { color: currentTheme.colors.textSecondary },
-            ]}
-          >
+          <Text style={[styles.detail, { color: "#475569" }]}>
             ⏰ {event.time}
           </Text>
         )}

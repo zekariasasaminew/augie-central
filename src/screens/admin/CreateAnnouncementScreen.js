@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Switch,
+  Dimensions,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
@@ -18,14 +19,14 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppContext";
-import { getTheme, commonStyles } from "../../styles/theme";
+
 import { announcementApi } from "../../supabase/api";
+
+const { width } = Dimensions.get("window");
 
 const CreateAnnouncementScreen = ({ navigation, route }) => {
   const { user, profile } = useAuth();
   const { theme } = useApp();
-
-  // Temporarily removed currentTheme to debug error
 
   const [formData, setFormData] = useState({
     title: "",
@@ -183,14 +184,11 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
     }
   };
 
-  const styles = useMemo(() => createStyles(currentTheme), [currentTheme]);
+  const styles = useMemo(() => createStyles(), []);
 
   return (
     <SafeAreaView
-      style={[
-        commonStyles.safeArea,
-        { backgroundColor: currentTheme.colors.background },
-      ]}
+      style={[commonStyles.safeArea, { backgroundColor: "#FFFFFF" }]}
     >
       <StatusBar style={theme === "dark" ? "light" : "dark"} />
 
@@ -200,13 +198,9 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
           onPress={() => navigation.goBack()}
           style={styles.backButton}
         >
-          <MaterialIcons
-            name="arrow-back"
-            size={24}
-            color={currentTheme.colors.text}
-          />
+          <MaterialIcons name="arrow-back" size={24} color={"#0F172A"} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: currentTheme.colors.text }]}>
+        <Text style={[styles.headerTitle, { color: "#0F172A" }]}>
           Create Announcement
         </Text>
         <View style={styles.headerRight} />
@@ -224,24 +218,22 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
           <View style={styles.form}>
             {/* Title Input */}
             <View style={styles.inputContainer}>
-              <Text style={[styles.label, { color: currentTheme.colors.text }]}>
-                Title *
-              </Text>
+              <Text style={[styles.label, { color: "#0F172A" }]}>Title *</Text>
               <View
                 style={[
                   styles.inputWrapper,
                   {
                     borderColor: errors.title
-                      ? currentTheme.colors.notification
-                      : currentTheme.colors.border,
-                    backgroundColor: currentTheme.colors.surface,
+                      ? "#EF4444"
+                      : "#E2E8F0",
+                    backgroundColor: "#F8FAFC",
                   },
                 ]}
               >
                 <TextInput
-                  style={[styles.input, { color: currentTheme.colors.text }]}
+                  style={[styles.input, { color: "#0F172A" }]}
                   placeholder="Enter announcement title"
-                  placeholderTextColor={currentTheme.colors.textSecondary}
+                  placeholderTextColor={"#475569"}
                   value={formData.title}
                   onChangeText={(value) => updateField("title", value)}
                   autoCapitalize="sentences"
@@ -251,7 +243,7 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                 <Text
                   style={[
                     styles.errorText,
-                    { color: currentTheme.colors.notification },
+                    { color: "#EF4444" },
                   ]}
                 >
                   {errors.title}
@@ -261,7 +253,7 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
 
             {/* Short Description Input */}
             <View style={styles.inputContainer}>
-              <Text style={[styles.label, { color: currentTheme.colors.text }]}>
+              <Text style={[styles.label, { color: "#0F172A" }]}>
                 Short Description *
               </Text>
               <View
@@ -269,16 +261,16 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                   styles.inputWrapper,
                   {
                     borderColor: errors.short_description
-                      ? currentTheme.colors.notification
-                      : currentTheme.colors.border,
-                    backgroundColor: currentTheme.colors.surface,
+                      ? "#EF4444"
+                      : "#E2E8F0",
+                    backgroundColor: "#F8FAFC",
                   },
                 ]}
               >
                 <TextInput
-                  style={[styles.input, { color: currentTheme.colors.text }]}
+                  style={[styles.input, { color: "#0F172A" }]}
                   placeholder="Brief summary for preview"
-                  placeholderTextColor={currentTheme.colors.textSecondary}
+                  placeholderTextColor={"#475569"}
                   value={formData.short_description}
                   onChangeText={(value) =>
                     updateField("short_description", value)
@@ -292,7 +284,7 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                 <Text
                   style={[
                     styles.errorText,
-                    { color: currentTheme.colors.notification },
+                    { color: "#EF4444" },
                   ]}
                 >
                   {errors.short_description}
@@ -302,9 +294,7 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
 
             {/* Category Selection */}
             <View style={styles.inputContainer}>
-              <Text style={[styles.label, { color: currentTheme.colors.text }]}>
-                Category
-              </Text>
+              <Text style={[styles.label, { color: "#0F172A" }]}>Category</Text>
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
@@ -316,9 +306,9 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                     style={[
                       styles.categoryChip,
                       formData.category === category.id && {
-                        backgroundColor: currentTheme.colors.primary,
+                        backgroundColor: "#0F172A",
                       },
-                      { borderColor: currentTheme.colors.border },
+                      { borderColor: "#E2E8F0" },
                     ]}
                     onPress={() => updateField("category", category.id)}
                   >
@@ -326,9 +316,7 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                       name={category.icon}
                       size={16}
                       color={
-                        formData.category === category.id
-                          ? "white"
-                          : currentTheme.colors.textSecondary
+                        formData.category === category.id ? "white" : "#475569"
                       }
                     />
                     <Text
@@ -338,7 +326,7 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                           color:
                             formData.category === category.id
                               ? "white"
-                              : currentTheme.colors.textSecondary,
+                              : "#475569",
                         },
                       ]}
                     >
@@ -351,7 +339,7 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
 
             {/* Content Input */}
             <View style={styles.inputContainer}>
-              <Text style={[styles.label, { color: currentTheme.colors.text }]}>
+              <Text style={[styles.label, { color: "#0F172A" }]}>
                 Full Content *
               </Text>
               <View
@@ -360,20 +348,16 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                   styles.textAreaWrapper,
                   {
                     borderColor: errors.content
-                      ? currentTheme.colors.notification
-                      : currentTheme.colors.border,
-                    backgroundColor: currentTheme.colors.surface,
+                      ? "#EF4444"
+                      : "#E2E8F0",
+                    backgroundColor: "#F8FAFC",
                   },
                 ]}
               >
                 <TextInput
-                  style={[
-                    styles.input,
-                    styles.textArea,
-                    { color: currentTheme.colors.text },
-                  ]}
+                  style={[styles.input, styles.textArea, { color: "#0F172A" }]}
                   placeholder="Enter detailed announcement content"
-                  placeholderTextColor={currentTheme.colors.textSecondary}
+                  placeholderTextColor={"#475569"}
                   value={formData.content}
                   onChangeText={(value) => updateField("content", value)}
                   multiline
@@ -386,7 +370,7 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                 <Text
                   style={[
                     styles.errorText,
-                    { color: currentTheme.colors.notification },
+                    { color: "#EF4444" },
                   ]}
                 >
                   {errors.content}
@@ -396,34 +380,29 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
 
             {/* Tags Section */}
             <View style={styles.inputContainer}>
-              <Text style={[styles.label, { color: currentTheme.colors.text }]}>
-                Tags
-              </Text>
+              <Text style={[styles.label, { color: "#0F172A" }]}>Tags</Text>
               <View style={styles.tagsInputContainer}>
                 <View
                   style={[
                     styles.inputWrapper,
                     {
-                      borderColor: currentTheme.colors.border,
-                      backgroundColor: currentTheme.colors.surface,
+                      borderColor: "#E2E8F0",
+                      backgroundColor: "#F8FAFC",
                       flex: 1,
                     },
                   ]}
                 >
                   <TextInput
-                    style={[styles.input, { color: currentTheme.colors.text }]}
+                    style={[styles.input, { color: "#0F172A" }]}
                     placeholder="Add a tag"
-                    placeholderTextColor={currentTheme.colors.textSecondary}
+                    placeholderTextColor={"#475569"}
                     value={newTag}
                     onChangeText={setNewTag}
                     onSubmitEditing={addTag}
                   />
                 </View>
                 <TouchableOpacity
-                  style={[
-                    styles.addButton,
-                    { backgroundColor: currentTheme.colors.primary },
-                  ]}
+                  style={[styles.addButton, { backgroundColor: "#0F172A" }]}
                   onPress={addTag}
                 >
                   <MaterialIcons name="add" size={20} color="white" />
@@ -437,24 +416,19 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                       style={[
                         styles.tag,
                         {
-                          backgroundColor: currentTheme.colors.primary + "15",
-                          borderColor: currentTheme.colors.primary + "30",
+                          backgroundColor: "#0F172A" + "15",
+                          borderColor: "#0F172A" + "30",
                         },
                       ]}
                     >
-                      <Text
-                        style={[
-                          styles.tagText,
-                          { color: currentTheme.colors.primary },
-                        ]}
-                      >
+                      <Text style={[styles.tagText, { color: "#0F172A" }]}>
                         {tag}
                       </Text>
                       <TouchableOpacity onPress={() => removeTag(tag)}>
                         <MaterialIcons
                           name="close"
                           size={16}
-                          color={currentTheme.colors.primary}
+                          color={"#0F172A"}
                         />
                       </TouchableOpacity>
                     </View>
@@ -469,22 +443,14 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                 <MaterialIcons
                   name="event"
                   size={24}
-                  color={currentTheme.colors.accent}
+                  color={"#84CC16"}
                 />
                 <View style={styles.eventToggleText}>
-                  <Text
-                    style={[
-                      styles.eventToggleTitle,
-                      { color: currentTheme.colors.text },
-                    ]}
-                  >
+                  <Text style={[styles.eventToggleTitle, { color: "#0F172A" }]}>
                     This is an event
                   </Text>
                   <Text
-                    style={[
-                      styles.eventToggleSubtitle,
-                      { color: currentTheme.colors.textSecondary },
-                    ]}
+                    style={[styles.eventToggleSubtitle, { color: "#475569" }]}
                   >
                     Add event-specific details
                   </Text>
@@ -494,10 +460,10 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                 value={formData.is_event}
                 onValueChange={(value) => updateField("is_event", value)}
                 trackColor={{
-                  false: currentTheme.colors.border,
-                  true: currentTheme.colors.accent,
+                  false: "#E2E8F0",
+                  true: "#84CC16",
                 }}
-                thumbColor={currentTheme.colors.background}
+                thumbColor={"#FFFFFF"}
               />
             </View>
 
@@ -506,9 +472,7 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
               <>
                 {/* Event Date */}
                 <View style={styles.inputContainer}>
-                  <Text
-                    style={[styles.label, { color: currentTheme.colors.text }]}
-                  >
+                  <Text style={[styles.label, { color: "#0F172A" }]}>
                     Event Date & Time *
                   </Text>
                   <TouchableOpacity
@@ -516,9 +480,9 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                       styles.inputWrapper,
                       {
                         borderColor: errors.event_date
-                          ? currentTheme.colors.notification
-                          : currentTheme.colors.border,
-                        backgroundColor: currentTheme.colors.surface,
+                          ? "#EF4444"
+                          : "#E2E8F0",
+                        backgroundColor: "#F8FAFC",
                       },
                     ]}
                     onPress={() => setShowDatePicker(true)}
@@ -526,16 +490,14 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                     <MaterialIcons
                       name="schedule"
                       size={20}
-                      color={currentTheme.colors.textSecondary}
+                      color={"#475569"}
                       style={styles.inputIcon}
                     />
                     <Text
                       style={[
                         styles.input,
                         {
-                          color: formData.event_date
-                            ? currentTheme.colors.text
-                            : currentTheme.colors.textSecondary,
+                          color: formData.event_date ? "#0F172A" : "#475569",
                         },
                       ]}
                     >
@@ -548,7 +510,7 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                     <Text
                       style={[
                         styles.errorText,
-                        { color: currentTheme.colors.notification },
+                        { color: "#EF4444" },
                       ]}
                     >
                       {errors.event_date}
@@ -558,9 +520,7 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
 
                 {/* Event Location */}
                 <View style={styles.inputContainer}>
-                  <Text
-                    style={[styles.label, { color: currentTheme.colors.text }]}
-                  >
+                  <Text style={[styles.label, { color: "#0F172A" }]}>
                     Event Location *
                   </Text>
                   <View
@@ -568,25 +528,22 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                       styles.inputWrapper,
                       {
                         borderColor: errors.event_location
-                          ? currentTheme.colors.notification
-                          : currentTheme.colors.border,
-                        backgroundColor: currentTheme.colors.surface,
+                          ? "#EF4444"
+                          : "#E2E8F0",
+                        backgroundColor: "#F8FAFC",
                       },
                     ]}
                   >
                     <MaterialIcons
                       name="location-on"
                       size={20}
-                      color={currentTheme.colors.textSecondary}
+                      color={"#475569"}
                       style={styles.inputIcon}
                     />
                     <TextInput
-                      style={[
-                        styles.input,
-                        { color: currentTheme.colors.text },
-                      ]}
+                      style={[styles.input, { color: "#0F172A" }]}
                       placeholder="Event location or venue"
-                      placeholderTextColor={currentTheme.colors.textSecondary}
+                      placeholderTextColor={"#475569"}
                       value={formData.event_location}
                       onChangeText={(value) =>
                         updateField("event_location", value)
@@ -597,7 +554,7 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                     <Text
                       style={[
                         styles.errorText,
-                        { color: currentTheme.colors.notification },
+                        { color: "#EF4444" },
                       ]}
                     >
                       {errors.event_location}
@@ -609,29 +566,24 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
 
             {/* Links Section */}
             <View style={styles.inputContainer}>
-              <Text style={[styles.label, { color: currentTheme.colors.text }]}>
-                Links
-              </Text>
+              <Text style={[styles.label, { color: "#0F172A" }]}>Links</Text>
               <View style={styles.linkInputContainer}>
                 <View style={styles.linkInputRow}>
                   <View
                     style={[
                       styles.inputWrapper,
                       {
-                        borderColor: currentTheme.colors.border,
-                        backgroundColor: currentTheme.colors.surface,
+                        borderColor: "#E2E8F0",
+                        backgroundColor: "#F8FAFC",
                         flex: 1,
                         marginRight: 8,
                       },
                     ]}
                   >
                     <TextInput
-                      style={[
-                        styles.input,
-                        { color: currentTheme.colors.text },
-                      ]}
+                      style={[styles.input, { color: "#0F172A" }]}
                       placeholder="Link title"
-                      placeholderTextColor={currentTheme.colors.textSecondary}
+                      placeholderTextColor={"#475569"}
                       value={newLink.title}
                       onChangeText={(value) =>
                         setNewLink((prev) => ({ ...prev, title: value }))
@@ -642,19 +594,16 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                     style={[
                       styles.inputWrapper,
                       {
-                        borderColor: currentTheme.colors.border,
-                        backgroundColor: currentTheme.colors.surface,
+                        borderColor: "#E2E8F0",
+                        backgroundColor: "#F8FAFC",
                         flex: 1,
                       },
                     ]}
                   >
                     <TextInput
-                      style={[
-                        styles.input,
-                        { color: currentTheme.colors.text },
-                      ]}
+                      style={[styles.input, { color: "#0F172A" }]}
                       placeholder="https://..."
-                      placeholderTextColor={currentTheme.colors.textSecondary}
+                      placeholderTextColor={"#475569"}
                       value={newLink.url}
                       onChangeText={(value) =>
                         setNewLink((prev) => ({ ...prev, url: value }))
@@ -666,7 +615,7 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                 <TouchableOpacity
                   style={[
                     styles.addButton,
-                    { backgroundColor: currentTheme.colors.secondary },
+                    { backgroundColor: "#38BDF8" },
                   ]}
                   onPress={addLink}
                 >
@@ -681,8 +630,8 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                       style={[
                         styles.linkItem,
                         {
-                          backgroundColor: currentTheme.colors.surface,
-                          borderColor: currentTheme.colors.border,
+                          backgroundColor: "#F8FAFC",
+                          borderColor: "#E2E8F0",
                         },
                       ]}
                     >
@@ -690,22 +639,16 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                         <MaterialIcons
                           name="link"
                           size={16}
-                          color={currentTheme.colors.secondary}
+                          color={"#38BDF8"}
                         />
                         <View style={styles.linkItemText}>
                           <Text
-                            style={[
-                              styles.linkItemTitle,
-                              { color: currentTheme.colors.text },
-                            ]}
+                            style={[styles.linkItemTitle, { color: "#0F172A" }]}
                           >
                             {link.title}
                           </Text>
                           <Text
-                            style={[
-                              styles.linkItemUrl,
-                              { color: currentTheme.colors.textSecondary },
-                            ]}
+                            style={[styles.linkItemUrl, { color: "#475569" }]}
                           >
                             {link.url}
                           </Text>
@@ -715,7 +658,7 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                         <MaterialIcons
                           name="close"
                           size={20}
-                          color={currentTheme.colors.textSecondary}
+                          color={"#475569"}
                         />
                       </TouchableOpacity>
                     </View>
@@ -726,17 +669,8 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
 
             {/* Info */}
             <View style={styles.infoContainer}>
-              <MaterialIcons
-                name="info"
-                size={16}
-                color={currentTheme.colors.textSecondary}
-              />
-              <Text
-                style={[
-                  styles.infoText,
-                  { color: currentTheme.colors.textSecondary },
-                ]}
-              >
+              <MaterialIcons name="info" size={16} color={"#475569"} />
+              <Text style={[styles.infoText, { color: "#475569" }]}>
                 This announcement will be visible to all students and staff.
               </Text>
             </View>
@@ -745,19 +679,14 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
             <TouchableOpacity
               style={[
                 styles.createButton,
-                { backgroundColor: currentTheme.colors.primary },
+                { backgroundColor: "#0F172A" },
                 loading && styles.disabledButton,
               ]}
               onPress={handleCreate}
               disabled={loading}
             >
               <MaterialIcons name="campaign" size={20} color="white" />
-              <Text
-                style={[
-                  styles.createButtonText,
-                  { color: currentTheme.colors.background },
-                ]}
-              >
+              <Text style={[styles.createButtonText, { color: "#FFFFFF" }]}>
                 {loading ? "Creating..." : "Create Announcement"}
               </Text>
             </TouchableOpacity>

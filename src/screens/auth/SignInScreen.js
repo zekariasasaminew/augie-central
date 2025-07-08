@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -17,7 +17,7 @@ import { StatusBar } from "expo-status-bar";
 
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppContext";
-import { useTheme } from "../../hooks/useTheme";
+
 import { commonStyles } from "../../styles/theme";
 import { isValidEmail } from "../../data/mockData";
 import { authApi } from "../../supabase/api";
@@ -168,12 +168,7 @@ const SignInScreen = ({ navigation }) => {
 
           {/* Info */}
           <View style={styles.demoInfo}>
-            <Text
-              style={[
-                styles.demoTitle,
-                { color: currentTheme.colors.textSecondary },
-              ]}
-            >
+            <Text style={[styles.demoTitle, { color: "#475569" }]}>
               Sign in with your Augustana email address and password.
             </Text>
           </View>
@@ -182,7 +177,7 @@ const SignInScreen = ({ navigation }) => {
           <View style={styles.form}>
             {/* Email Input */}
             <View style={styles.inputContainer}>
-              <Text style={[styles.label, { color: currentTheme.colors.text }]}>
+              <Text style={[styles.label, { color: "#0F172A" }]}>
                 Email Address
               </Text>
               <View
@@ -197,13 +192,13 @@ const SignInScreen = ({ navigation }) => {
                 <MaterialIcons
                   name="email"
                   size={20}
-                  color={currentTheme.colors.textSecondary}
+                  color={"#475569"}
                   style={styles.inputIcon}
                 />
                 <TextInput
-                  style={[styles.input, { color: currentTheme.colors.text }]}
+                  style={[styles.input, { color: "#0F172A" }]}
                   placeholder="Enter your email"
-                  placeholderTextColor={currentTheme.colors.textSecondary}
+                  placeholderTextColor={"#475569"}
                   value={email}
                   onChangeText={setEmail}
                   keyboardType="email-address"
@@ -215,7 +210,7 @@ const SignInScreen = ({ navigation }) => {
                 <Text
                   style={[
                     styles.errorText,
-                    { color: currentTheme.colors.notification },
+                    { color: "#EF4444" },
                   ]}
                 >
                   {errors.email}
@@ -225,30 +220,28 @@ const SignInScreen = ({ navigation }) => {
 
             {/* Password Input */}
             <View style={styles.inputContainer}>
-              <Text style={[styles.label, { color: currentTheme.colors.text }]}>
-                Password
-              </Text>
+              <Text style={[styles.label, { color: "#0F172A" }]}>Password</Text>
               <View
                 style={[
                   styles.inputWrapper,
                   {
                     borderColor: errors.password
-                      ? currentTheme.colors.notification
-                      : currentTheme.colors.border,
-                    backgroundColor: currentTheme.colors.surface,
+                      ? "#EF4444"
+                      : "#E2E8F0",
+                    backgroundColor: "#F8FAFC",
                   },
                 ]}
               >
                 <MaterialIcons
                   name="lock"
                   size={20}
-                  color={currentTheme.colors.textSecondary}
+                  color={"#475569"}
                   style={styles.inputIcon}
                 />
                 <TextInput
-                  style={[styles.input, { color: currentTheme.colors.text }]}
+                  style={[styles.input, { color: "#0F172A" }]}
                   placeholder="Enter your password"
-                  placeholderTextColor={currentTheme.colors.textSecondary}
+                  placeholderTextColor={"#475569"}
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry={!showPassword}
@@ -261,7 +254,7 @@ const SignInScreen = ({ navigation }) => {
                   <MaterialIcons
                     name={showPassword ? "visibility" : "visibility-off"}
                     size={20}
-                    color={currentTheme.colors.textSecondary}
+                    color={"#475569"}
                   />
                 </TouchableOpacity>
               </View>
@@ -269,7 +262,7 @@ const SignInScreen = ({ navigation }) => {
                 <Text
                   style={[
                     styles.errorText,
-                    { color: currentTheme.colors.notification },
+                    { color: "#EF4444" },
                   ]}
                 >
                   {errors.password}
@@ -282,12 +275,7 @@ const SignInScreen = ({ navigation }) => {
               onPress={() => setShowForgotPassword(true)}
               style={styles.forgotPasswordContainer}
             >
-              <Text
-                style={[
-                  styles.forgotPasswordText,
-                  { color: currentTheme.colors.primary },
-                ]}
-              >
+              <Text style={[styles.forgotPasswordText, { color: "#0F172A" }]}>
                 Forgot Password?
               </Text>
             </TouchableOpacity>
@@ -296,39 +284,24 @@ const SignInScreen = ({ navigation }) => {
             <TouchableOpacity
               style={[
                 styles.signInButton,
-                { backgroundColor: currentTheme.colors.primary },
+                { backgroundColor: "#0F172A" },
                 (loading || authLoading) && styles.disabledButton,
               ]}
               onPress={handleSignIn}
               disabled={loading || authLoading}
             >
-              <Text
-                style={[
-                  styles.signInButtonText,
-                  { color: currentTheme.colors.background },
-                ]}
-              >
+              <Text style={[styles.signInButtonText, { color: "#FFFFFF" }]}>
                 {loading || authLoading ? "Signing In..." : "Sign In"}
               </Text>
             </TouchableOpacity>
 
             {/* Sign Up Link */}
             <View style={styles.signUpContainer}>
-              <Text
-                style={[
-                  styles.signUpText,
-                  { color: currentTheme.colors.textSecondary },
-                ]}
-              >
+              <Text style={[styles.signUpText, { color: "#475569" }]}>
                 Don't have an account?{" "}
               </Text>
               <TouchableOpacity onPress={() => navigation.navigate("SignUp")}>
-                <Text
-                  style={[
-                    styles.signUpLink,
-                    { color: currentTheme.colors.primary },
-                  ]}
-                >
+                <Text style={[styles.signUpLink, { color: "#0F172A" }]}>
                   Sign Up
                 </Text>
               </TouchableOpacity>
@@ -345,63 +318,47 @@ const SignInScreen = ({ navigation }) => {
         onRequestClose={() => setShowForgotPassword(false)}
       >
         <View style={styles.modalOverlay}>
-          <View
-            style={[
-              styles.modalContent,
-              { backgroundColor: currentTheme.colors.card },
-            ]}
-          >
+          <View style={[styles.modalContent, { backgroundColor: "#FFFFFF" }]}>
             <View style={styles.modalHeader}>
-              <Text
-                style={[styles.modalTitle, { color: currentTheme.colors.text }]}
-              >
+              <Text style={[styles.modalTitle, { color: "#0F172A" }]}>
                 Reset Password
               </Text>
               <TouchableOpacity
                 onPress={() => setShowForgotPassword(false)}
                 style={styles.modalCloseButton}
               >
-                <MaterialIcons
-                  name="close"
-                  size={24}
-                  color={currentTheme.colors.textSecondary}
-                />
+                <MaterialIcons name="close" size={24} color={"#475569"} />
               </TouchableOpacity>
             </View>
 
-            <Text
-              style={[
-                styles.modalDescription,
-                { color: currentTheme.colors.textSecondary },
-              ]}
-            >
+            <Text style={[styles.modalDescription, { color: "#475569" }]}>
               Enter your email address and we'll send you a link to reset your
               password.
             </Text>
 
             <View style={styles.modalInputContainer}>
-              <Text style={[styles.label, { color: currentTheme.colors.text }]}>
+              <Text style={[styles.label, { color: "#0F172A" }]}>
                 Email Address
               </Text>
               <View
                 style={[
                   styles.inputWrapper,
                   {
-                    borderColor: currentTheme.colors.border,
-                    backgroundColor: currentTheme.colors.surface,
+                    borderColor: "#E2E8F0",
+                    backgroundColor: "#F8FAFC",
                   },
                 ]}
               >
                 <MaterialIcons
                   name="email"
                   size={20}
-                  color={currentTheme.colors.textSecondary}
+                  color={"#475569"}
                   style={styles.inputIcon}
                 />
                 <TextInput
-                  style={[styles.input, { color: currentTheme.colors.text }]}
+                  style={[styles.input, { color: "#0F172A" }]}
                   placeholder="Enter your email"
-                  placeholderTextColor={currentTheme.colors.textSecondary}
+                  placeholderTextColor={"#475569"}
                   value={resetEmail}
                   onChangeText={setResetEmail}
                   keyboardType="email-address"
@@ -416,16 +373,11 @@ const SignInScreen = ({ navigation }) => {
                 style={[
                   styles.modalButton,
                   styles.modalCancelButton,
-                  { borderColor: currentTheme.colors.border },
+                  { borderColor: "#E2E8F0" },
                 ]}
                 onPress={() => setShowForgotPassword(false)}
               >
-                <Text
-                  style={[
-                    styles.modalButtonText,
-                    { color: currentTheme.colors.text },
-                  ]}
-                >
+                <Text style={[styles.modalButtonText, { color: "#0F172A" }]}>
                   Cancel
                 </Text>
               </TouchableOpacity>
@@ -434,18 +386,13 @@ const SignInScreen = ({ navigation }) => {
                 style={[
                   styles.modalButton,
                   styles.modalConfirmButton,
-                  { backgroundColor: currentTheme.colors.primary },
+                  { backgroundColor: "#0F172A" },
                   resetLoading && styles.disabledButton,
                 ]}
                 onPress={handleForgotPassword}
                 disabled={resetLoading}
               >
-                <Text
-                  style={[
-                    styles.modalButtonText,
-                    { color: currentTheme.colors.background },
-                  ]}
-                >
+                <Text style={[styles.modalButtonText, { color: "#FFFFFF" }]}>
                   {resetLoading ? "Sending..." : "Send Reset Link"}
                 </Text>
               </TouchableOpacity>

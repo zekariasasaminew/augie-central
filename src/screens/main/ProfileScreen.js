@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -14,13 +14,10 @@ import { StatusBar } from "expo-status-bar";
 
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppContext";
-import { getTheme } from "../../styles/theme";
 
-const ProfileScreen = () => {
+const ProfileScreen = ({ navigation }) => {
   const { user, profile, signOut } = useAuth();
-  const { theme, toggleTheme } = useApp();
-
-  // Temporarily removed currentTheme to debug error
+  const { theme, toggleTheme, notifications, updateNotifications } = useApp();
 
   const handleLogout = () => {
     Alert.alert("Sign Out", "Are you sure you want to sign out?", [
@@ -30,57 +27,35 @@ const ProfileScreen = () => {
   };
 
   return (
-    <SafeAreaView
-      style={[
-        styles.container,
-        { backgroundColor: currentTheme.colors.background },
-      ]}
-    >
+    <SafeAreaView style={[styles.container, { backgroundColor: "#FFFFFF" }]}>
       <StatusBar style={theme === "dark" ? "light" : "dark"} />
 
       <ScrollView style={styles.content}>
         {/* Profile Header */}
         <View style={styles.profileHeader}>
-          <View
-            style={[
-              styles.avatar,
-              { backgroundColor: currentTheme.colors.primary },
-            ]}
-          >
+          <View style={[styles.avatar, { backgroundColor: "#0F172A" }]}>
             <Text style={styles.avatarText}>
               {(profile?.name || user?.user_metadata?.name)?.charAt(0) || "U"}
             </Text>
           </View>
-          <Text style={[styles.name, { color: currentTheme.colors.text }]}>
+          <Text style={[styles.name, { color: "#0F172A" }]}>
             {profile?.name || user?.user_metadata?.name || "Student Name"}
           </Text>
-          <Text
-            style={[styles.email, { color: currentTheme.colors.textSecondary }]}
-          >
+          <Text style={[styles.email, { color: "#475569" }]}>
             {profile?.email || user?.email || "student@augustana.edu"}
           </Text>
         </View>
 
         {/* Settings */}
-        <View
-          style={[
-            styles.settingsCard,
-            { backgroundColor: currentTheme.colors.card },
-          ]}
-        >
+        <View style={[styles.settingsCard, { backgroundColor: "#FFFFFF" }]}>
           <View style={styles.settingItem}>
             <View style={styles.settingLeft}>
               <MaterialIcons
                 name={theme === "dark" ? "dark-mode" : "light-mode"}
                 size={24}
-                color={currentTheme.colors.primary}
+                color={"#0F172A"}
               />
-              <Text
-                style={[
-                  styles.settingText,
-                  { color: currentTheme.colors.text },
-                ]}
-              >
+              <Text style={[styles.settingText, { color: "#0F172A" }]}>
                 Dark Mode
               </Text>
             </View>
@@ -88,10 +63,10 @@ const ProfileScreen = () => {
               value={theme === "dark"}
               onValueChange={toggleTheme}
               trackColor={{
-                false: currentTheme.colors.border,
-                true: currentTheme.colors.primary,
+                false: "#E2E8F0",
+                true: "#0F172A",
               }}
-              thumbColor={currentTheme.colors.card}
+              thumbColor={"#FFFFFF"}
             />
           </View>
 
@@ -102,25 +77,12 @@ const ProfileScreen = () => {
             }
           >
             <View style={styles.settingLeft}>
-              <MaterialIcons
-                name="notifications"
-                size={24}
-                color={currentTheme.colors.primary}
-              />
-              <Text
-                style={[
-                  styles.settingText,
-                  { color: currentTheme.colors.text },
-                ]}
-              >
+              <MaterialIcons name="notifications" size={24} color={"#0F172A"} />
+              <Text style={[styles.settingText, { color: "#0F172A" }]}>
                 Notifications
               </Text>
             </View>
-            <MaterialIcons
-              name="chevron-right"
-              size={20}
-              color={currentTheme.colors.textSecondary}
-            />
+            <MaterialIcons name="chevron-right" size={20} color={"#475569"} />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -130,34 +92,18 @@ const ProfileScreen = () => {
             }
           >
             <View style={styles.settingLeft}>
-              <MaterialIcons
-                name="help"
-                size={24}
-                color={currentTheme.colors.primary}
-              />
-              <Text
-                style={[
-                  styles.settingText,
-                  { color: currentTheme.colors.text },
-                ]}
-              >
+              <MaterialIcons name="help" size={24} color={"#0F172A"} />
+              <Text style={[styles.settingText, { color: "#0F172A" }]}>
                 Help & Support
               </Text>
             </View>
-            <MaterialIcons
-              name="chevron-right"
-              size={20}
-              color={currentTheme.colors.textSecondary}
-            />
+            <MaterialIcons name="chevron-right" size={20} color={"#475569"} />
           </TouchableOpacity>
         </View>
 
         {/* Sign Out Button */}
         <TouchableOpacity
-          style={[
-            styles.signOutButton,
-            { backgroundColor: currentTheme.colors.notification },
-          ]}
+          style={[styles.signOutButton, { backgroundColor: "#EF4444" }]}
           onPress={handleLogout}
         >
           <MaterialIcons name="logout" size={20} color="white" />
@@ -166,12 +112,7 @@ const ProfileScreen = () => {
 
         {/* Footer */}
         <View style={styles.footer}>
-          <Text
-            style={[
-              styles.footerText,
-              { color: currentTheme.colors.textSecondary },
-            ]}
-          >
+          <Text style={[styles.footerText, { color: "#475569" }]}>
             Augie Central v1.0.0
           </Text>
         </View>

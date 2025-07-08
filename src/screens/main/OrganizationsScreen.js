@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
   View,
   Text,
@@ -9,21 +9,22 @@ import {
   Alert,
   RefreshControl,
   Modal,
+  Dimensions,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppContext";
-import { getTheme } from "../../styles/theme";
+
 import { organizationApi } from "../../supabase/api";
 import { organizationCategories } from "../../data/mockData";
+
+const { width } = Dimensions.get("window");
 
 const OrganizationsScreen = ({ navigation }) => {
   const { user, profile } = useAuth();
   const { theme } = useApp();
-
-  // Temporarily removed currentTheme to debug error
 
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [organizations, setOrganizations] = useState([]);
@@ -152,31 +153,22 @@ const OrganizationsScreen = ({ navigation }) => {
           style={[
             styles.filterModal,
             {
-              backgroundColor: currentTheme.colors.card,
-              borderColor: currentTheme.colors.border,
-              shadowColor: currentTheme.colors.shadow,
+              backgroundColor: "#FFFFFF",
+              borderColor: "#E2E8F0",
+              shadowColor: "rgba(15, 23, 42, 0.08)",
             },
-            currentTheme.shadows.lg,
+            ,
           ]}
         >
           <View style={styles.filterModalHeader}>
-            <Text
-              style={[
-                styles.filterModalTitle,
-                { color: currentTheme.colors.text },
-              ]}
-            >
+            <Text style={[styles.filterModalTitle, { color: "#0F172A" }]}>
               Filter Organizations
             </Text>
             <TouchableOpacity
               onPress={() => setShowFilterModal(false)}
               style={styles.filterModalClose}
             >
-              <MaterialIcons
-                name="close"
-                size={24}
-                color={currentTheme.colors.textSecondary}
-              />
+              <MaterialIcons name="close" size={24} color={"#475569"} />
             </TouchableOpacity>
           </View>
 
@@ -187,15 +179,15 @@ const OrganizationsScreen = ({ navigation }) => {
                 style={[
                   styles.filterOption,
                   selectedCategory === category.id && {
-                    backgroundColor: currentTheme.colors.primary + "15",
-                    borderColor: currentTheme.colors.primary,
+                    backgroundColor: "#0F172A" + "15",
+                    borderColor: "#0F172A",
                   },
                   {
-                    borderColor: currentTheme.colors.border,
+                    borderColor: "#E2E8F0",
                     backgroundColor:
                       selectedCategory === category.id
-                        ? currentTheme.colors.primary + "15"
-                        : currentTheme.colors.surface,
+                        ? "#0F172A" + "15"
+                        : "#F8FAFC",
                   },
                 ]}
                 onPress={() => selectFilter(category.id)}
@@ -205,9 +197,7 @@ const OrganizationsScreen = ({ navigation }) => {
                     name={category.icon}
                     size={20}
                     color={
-                      selectedCategory === category.id
-                        ? currentTheme.colors.primary
-                        : currentTheme.colors.textSecondary
+                      selectedCategory === category.id ? "#0F172A" : "#475569"
                     }
                   />
                   <Text
@@ -216,8 +206,8 @@ const OrganizationsScreen = ({ navigation }) => {
                       {
                         color:
                           selectedCategory === category.id
-                            ? currentTheme.colors.primary
-                            : currentTheme.colors.text,
+                            ? "#0F172A"
+                            : "#0F172A",
                       },
                     ]}
                   >
@@ -225,11 +215,7 @@ const OrganizationsScreen = ({ navigation }) => {
                   </Text>
                 </View>
                 {selectedCategory === category.id && (
-                  <MaterialIcons
-                    name="check"
-                    size={20}
-                    color={currentTheme.colors.primary}
-                  />
+                  <MaterialIcons name="check" size={20} color={"#0F172A"} />
                 )}
               </TouchableOpacity>
             ))}
@@ -241,17 +227,14 @@ const OrganizationsScreen = ({ navigation }) => {
                 styles.filterModalButton,
                 styles.clearButton,
                 {
-                  borderColor: currentTheme.colors.border,
-                  backgroundColor: currentTheme.colors.surface,
+                  borderColor: "#E2E8F0",
+                  backgroundColor: "#F8FAFC",
                 },
               ]}
               onPress={clearFilters}
             >
               <Text
-                style={[
-                  styles.filterModalButtonText,
-                  { color: currentTheme.colors.textSecondary },
-                ]}
+                style={[styles.filterModalButtonText, { color: "#475569" }]}
               >
                 Clear All
               </Text>
@@ -260,15 +243,12 @@ const OrganizationsScreen = ({ navigation }) => {
               style={[
                 styles.filterModalButton,
                 styles.applyButton,
-                { backgroundColor: currentTheme.colors.primary },
+                { backgroundColor: "#0F172A" },
               ]}
               onPress={() => setShowFilterModal(false)}
             >
               <Text
-                style={[
-                  styles.filterModalButtonText,
-                  { color: currentTheme.colors.background },
-                ]}
+                style={[styles.filterModalButtonText, { color: "#FFFFFF" }]}
               >
                 Apply Filters
               </Text>
@@ -284,47 +264,27 @@ const OrganizationsScreen = ({ navigation }) => {
       style={[
         styles.orgCard,
         {
-          backgroundColor: currentTheme.colors.card,
-          borderColor: currentTheme.colors.borderLight,
-          shadowColor: currentTheme.colors.shadow,
+          backgroundColor: "#FFFFFF",
+          borderColor: "#E2E8F0",
+          shadowColor: "rgba(15, 23, 42, 0.08)",
         },
-        currentTheme.shadows.md,
       ]}
     >
       <View style={styles.orgHeader}>
-        <View
-          style={[
-            styles.orgLogo,
-            { backgroundColor: currentTheme.colors.primary },
-          ]}
-        >
+        <View style={[styles.orgLogo, { backgroundColor: "#0F172A" }]}>
           <Text style={styles.orgLogoText}>{item.name.charAt(0)}</Text>
         </View>
 
         <View style={styles.orgInfo}>
-          <Text style={[styles.orgName, { color: currentTheme.colors.text }]}>
+          <Text style={[styles.orgName, { color: "#0F172A" }]}>
             {item.name}
           </Text>
-          <Text
-            style={[
-              styles.orgDescription,
-              { color: currentTheme.colors.textSecondary },
-            ]}
-          >
+          <Text style={[styles.orgDescription, { color: "#475569" }]}>
             {item.description}
           </Text>
           <View style={styles.orgMeetingInfo}>
-            <MaterialIcons
-              name="schedule"
-              size={14}
-              color={currentTheme.colors.textTertiary}
-            />
-            <Text
-              style={[
-                styles.orgMeetings,
-                { color: currentTheme.colors.textTertiary },
-              ]}
-            >
+            <MaterialIcons name="schedule" size={14} color={"#64748B"} />
+            <Text style={[styles.orgMeetings, { color: "#64748B" }]}>
               {item.meetingSchedule}
             </Text>
           </View>
@@ -333,17 +293,8 @@ const OrganizationsScreen = ({ navigation }) => {
 
       <View style={styles.orgFooter}>
         <View style={styles.orgStats}>
-          <MaterialIcons
-            name="people"
-            size={16}
-            color={currentTheme.colors.textSecondary}
-          />
-          <Text
-            style={[
-              styles.orgStatsText,
-              { color: currentTheme.colors.textSecondary },
-            ]}
-          >
+          <MaterialIcons name="people" size={16} color={"#475569"} />
+          <Text style={[styles.orgStatsText, { color: "#475569" }]}>
             {item.member_count} members
           </Text>
         </View>
@@ -354,11 +305,11 @@ const OrganizationsScreen = ({ navigation }) => {
               styles.joinButton,
               item.user_is_member
                 ? {
-                    backgroundColor: currentTheme.colors.surface,
-                    borderColor: currentTheme.colors.border,
+                    backgroundColor: "#F8FAFC",
+                    borderColor: "#E2E8F0",
                     borderWidth: 1,
                   }
-                : { backgroundColor: currentTheme.colors.primary },
+                : { backgroundColor: "#0F172A" },
             ]}
             onPress={() => handleJoinOrganization(item)}
           >
@@ -366,9 +317,7 @@ const OrganizationsScreen = ({ navigation }) => {
               style={[
                 styles.joinButtonText,
                 {
-                  color: item.user_is_member
-                    ? currentTheme.colors.text
-                    : "white",
+                  color: item.user_is_member ? "#0F172A" : "white",
                 },
               ]}
             >
@@ -378,10 +327,7 @@ const OrganizationsScreen = ({ navigation }) => {
 
           {item.user_is_member && profile?.is_admin && (
             <TouchableOpacity
-              style={[
-                styles.createEventButton,
-                { backgroundColor: currentTheme.colors.secondary },
-              ]}
+              style={[styles.createEventButton, { backgroundColor: "#38BDF8" }]}
               onPress={() =>
                 navigation.navigate("CreateEvent", { organizationId: item.id })
               }
@@ -396,26 +342,16 @@ const OrganizationsScreen = ({ navigation }) => {
   );
 
   return (
-    <SafeAreaView
-      style={[
-        styles.container,
-        { backgroundColor: currentTheme.colors.background },
-      ]}
-    >
+    <SafeAreaView style={[styles.container, { backgroundColor: "#FFFFFF" }]}>
       <StatusBar style={theme === "dark" ? "light" : "dark"} />
 
       <View style={styles.content}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={[styles.title, { color: currentTheme.colors.text }]}>
+          <Text style={[styles.title, { color: "#0F172A" }]}>
             Student Organizations
           </Text>
-          <Text
-            style={[
-              styles.subtitle,
-              { color: currentTheme.colors.textSecondary },
-            ]}
-          >
+          <Text style={[styles.subtitle, { color: "#475569" }]}>
             Find and join organizations that match your interests
           </Text>
         </View>
@@ -428,28 +364,19 @@ const OrganizationsScreen = ({ navigation }) => {
                 style={[
                   styles.activeFilterChip,
                   {
-                    backgroundColor: currentTheme.colors.primary + "15",
-                    borderColor: currentTheme.colors.primary + "30",
+                    backgroundColor: "#0F172A" + "15",
+                    borderColor: "#0F172A" + "30",
                   },
                 ]}
               >
-                <Text
-                  style={[
-                    styles.activeFilterText,
-                    { color: currentTheme.colors.primary },
-                  ]}
-                >
+                <Text style={[styles.activeFilterText, { color: "#0F172A" }]}>
                   {getSelectedCategoryName()}
                 </Text>
                 <TouchableOpacity
                   onPress={() => setSelectedCategory("all")}
                   style={styles.removeFilterButton}
                 >
-                  <MaterialIcons
-                    name="close"
-                    size={16}
-                    color={currentTheme.colors.primary}
-                  />
+                  <MaterialIcons name="close" size={16} color={"#0F172A"} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -458,12 +385,7 @@ const OrganizationsScreen = ({ navigation }) => {
 
         {/* Results Header */}
         <View style={styles.resultsHeader}>
-          <Text
-            style={[
-              styles.resultsText,
-              { color: currentTheme.colors.textSecondary },
-            ]}
-          >
+          <Text style={[styles.resultsText, { color: "#475569" }]}>
             {filteredOrganizations.length} organization
             {filteredOrganizations.length !== 1 ? "s" : ""} found
           </Text>
@@ -480,8 +402,8 @@ const OrganizationsScreen = ({ navigation }) => {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              tintColor={currentTheme.colors.primary}
-              colors={[currentTheme.colors.primary]}
+              tintColor={"#0F172A"}
+              colors={["#0F172A"]}
             />
           }
         />
@@ -492,21 +414,15 @@ const OrganizationsScreen = ({ navigation }) => {
         style={[
           styles.floatingFilterButton,
           {
-            backgroundColor: currentTheme.colors.primary,
-            shadowColor: currentTheme.colors.shadow,
+            backgroundColor: "#0F172A",
+            shadowColor: "rgba(15, 23, 42, 0.08)",
           },
-          currentTheme.shadows.lg,
         ]}
         onPress={() => setShowFilterModal(true)}
       >
         <MaterialIcons name="tune" size={24} color="white" />
         {getActiveFilterCount() > 0 && (
-          <View
-            style={[
-              styles.filterBadge,
-              { backgroundColor: currentTheme.colors.accent },
-            ]}
-          >
+          <View style={[styles.filterBadge, { backgroundColor: "#84CC16" }]}>
             <Text style={styles.filterBadgeText}>{getActiveFilterCount()}</Text>
           </View>
         )}

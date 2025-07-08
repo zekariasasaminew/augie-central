@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   View,
   Text,
@@ -9,20 +9,22 @@ import {
   Alert,
   ScrollView,
   Platform,
+  KeyboardAvoidingView,
+  Dimensions,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppContext";
-import { getTheme, commonStyles } from "../../styles/theme";
+import { commonStyles } from "../../styles/theme";
 import { eventApi, organizationApi } from "../../supabase/api";
 
-const CreateEventScreen = ({ navigation, route }) => {
-  const { user } = useAuth();
-  const { theme } = useApp();
+const { width } = Dimensions.get("window");
 
-  // Temporarily removed currentTheme to debug error
+const CreateEventScreen = ({ navigation, route }) => {
+  const { user, profile } = useAuth();
+  const { theme } = useApp();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -137,20 +139,13 @@ const CreateEventScreen = ({ navigation, route }) => {
 
   return (
     <SafeAreaView
-      style={[
-        commonStyles.safeArea,
-        { backgroundColor: currentTheme.colors.background },
-      ]}
+      style={[commonStyles.safeArea, { backgroundColor: "#FFFFFF" }]}
     >
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <MaterialIcons
-            name="arrow-back"
-            size={24}
-            color={currentTheme.colors.text}
-          />
+          <MaterialIcons name="arrow-back" size={24} color={"#0F172A"} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: currentTheme.colors.text }]}>
+        <Text style={[styles.headerTitle, { color: "#0F172A" }]}>
           Create Event
         </Text>
         <View />
@@ -158,114 +153,86 @@ const CreateEventScreen = ({ navigation, route }) => {
 
       <ScrollView style={styles.content}>
         <View style={styles.form}>
-          <Text style={[styles.label, { color: currentTheme.colors.text }]}>
-            Title *
-          </Text>
+          <Text style={[styles.label, { color: "#0F172A" }]}>Title *</Text>
           <TextInput
             style={[
               styles.input,
               {
-                color: currentTheme.colors.text,
-                borderColor: currentTheme.colors.border,
+                color: "#0F172A",
+                borderColor: "#E2E8F0",
               },
             ]}
             value={title}
             onChangeText={setTitle}
             placeholder="Event title"
-            placeholderTextColor={currentTheme.colors.textSecondary}
+            placeholderTextColor={"#475569"}
           />
 
-          <Text style={[styles.label, { color: currentTheme.colors.text }]}>
-            Description
-          </Text>
+          <Text style={[styles.label, { color: "#0F172A" }]}>Description</Text>
           <TextInput
             style={[
               styles.input,
               styles.textArea,
               {
-                color: currentTheme.colors.text,
-                borderColor: currentTheme.colors.border,
+                color: "#0F172A",
+                borderColor: "#E2E8F0",
               },
             ]}
             value={description}
             onChangeText={setDescription}
             placeholder="Event description"
-            placeholderTextColor={currentTheme.colors.textSecondary}
+            placeholderTextColor={"#475569"}
             multiline
             numberOfLines={4}
           />
 
-          <Text style={[styles.label, { color: currentTheme.colors.text }]}>
-            Location *
-          </Text>
+          <Text style={[styles.label, { color: "#0F172A" }]}>Location *</Text>
           <TextInput
             style={[
               styles.input,
               {
-                color: currentTheme.colors.text,
-                borderColor: currentTheme.colors.border,
+                color: "#0F172A",
+                borderColor: "#E2E8F0",
               },
             ]}
             value={location}
             onChangeText={setLocation}
             placeholder="Event location"
-            placeholderTextColor={currentTheme.colors.textSecondary}
+            placeholderTextColor={"#475569"}
           />
 
-          <Text style={[styles.label, { color: currentTheme.colors.text }]}>
-            Start Time *
-          </Text>
+          <Text style={[styles.label, { color: "#0F172A" }]}>Start Time *</Text>
           <TouchableOpacity
             style={[
               styles.input,
               styles.dateButton,
               {
-                borderColor: currentTheme.colors.border,
-                backgroundColor: currentTheme.colors.surface,
+                borderColor: "#E2E8F0",
+                backgroundColor: "#F8FAFC",
               },
             ]}
             onPress={() => setShowStartPicker(true)}
           >
-            <MaterialIcons
-              name="schedule"
-              size={20}
-              color={currentTheme.colors.textSecondary}
-            />
-            <Text
-              style={[
-                styles.dateButtonText,
-                { color: currentTheme.colors.text },
-              ]}
-            >
+            <MaterialIcons name="schedule" size={20} color={"#475569"} />
+            <Text style={[styles.dateButtonText, { color: "#0F172A" }]}>
               {formatDateTime(startTime)}
             </Text>
           </TouchableOpacity>
 
-          <Text style={[styles.label, { color: currentTheme.colors.text }]}>
-            End Time *
-          </Text>
+          <Text style={[styles.label, { color: "#0F172A" }]}>End Time *</Text>
           <TouchableOpacity
             style={[
               styles.input,
               styles.dateButton,
               {
-                borderColor: currentTheme.colors.border,
-                backgroundColor: currentTheme.colors.surface,
+                borderColor: "#E2E8F0",
+                backgroundColor: "#F8FAFC",
               },
             ]}
             onPress={() => setShowEndPicker(true)}
           >
-            <MaterialIcons
-              name="schedule"
-              size={20}
-              color={currentTheme.colors.textSecondary}
-            />
-            <Text
-              style={[
-                styles.dateButtonText,
-                { color: currentTheme.colors.text },
-              ]}
-            >
+            <MaterialIcons name="schedule" size={20} color={"#475569"} />
+            <Text style={[styles.dateButtonText, { color: "#0F172A" }]}>
               {formatDateTime(endTime)}
             </Text>
           </TouchableOpacity>
@@ -290,7 +257,7 @@ const CreateEventScreen = ({ navigation, route }) => {
             />
           )}
 
-          <Text style={[styles.label, { color: currentTheme.colors.text }]}>
+          <Text style={[styles.label, { color: "#0F172A" }]}>
             Organization {route?.params?.organizationId ? "*" : "(Optional)"}
           </Text>
           {organizations.length > 0 ? (
@@ -301,20 +268,15 @@ const CreateEventScreen = ({ navigation, route }) => {
                     styles.orgOption,
                     {
                       backgroundColor:
-                        selectedOrgId === ""
-                          ? currentTheme.colors.primary
-                          : currentTheme.colors.surface,
-                      borderColor: currentTheme.colors.border,
+                        selectedOrgId === "" ? "#0F172A" : "#F8FAFC",
+                      borderColor: "#E2E8F0",
                     },
                   ]}
                   onPress={() => setSelectedOrgId("")}
                 >
                   <Text
                     style={{
-                      color:
-                        selectedOrgId === ""
-                          ? "white"
-                          : currentTheme.colors.text,
+                      color: selectedOrgId === "" ? "white" : "#0F172A",
                     }}
                   >
                     No Organization (Independent Event)
@@ -328,20 +290,15 @@ const CreateEventScreen = ({ navigation, route }) => {
                     styles.orgOption,
                     {
                       backgroundColor:
-                        selectedOrgId === org.id
-                          ? currentTheme.colors.primary
-                          : currentTheme.colors.surface,
-                      borderColor: currentTheme.colors.border,
+                        selectedOrgId === org.id ? "#0F172A" : "#F8FAFC",
+                      borderColor: "#E2E8F0",
                     },
                   ]}
                   onPress={() => setSelectedOrgId(org.id)}
                 >
                   <Text
                     style={{
-                      color:
-                        selectedOrgId === org.id
-                          ? "white"
-                          : currentTheme.colors.text,
+                      color: selectedOrgId === org.id ? "white" : "#0F172A",
                     }}
                   >
                     {org.name}
@@ -350,16 +307,11 @@ const CreateEventScreen = ({ navigation, route }) => {
               ))}
             </View>
           ) : (
-            <Text style={{ color: currentTheme.colors.textSecondary }}>
-              No organizations available
-            </Text>
+            <Text style={{ color: "#475569" }}>No organizations available</Text>
           )}
 
           <TouchableOpacity
-            style={[
-              styles.createButton,
-              { backgroundColor: currentTheme.colors.primary },
-            ]}
+            style={[styles.createButton, { backgroundColor: "#0F172A" }]}
             onPress={handleCreate}
             disabled={loading}
           >
