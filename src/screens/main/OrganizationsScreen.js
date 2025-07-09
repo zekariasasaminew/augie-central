@@ -16,6 +16,7 @@ import { StatusBar } from "expo-status-bar";
 
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppContext";
+import { theme } from "../../styles/theme";
 
 import { organizationApi } from "../../supabase/api";
 import { organizationCategories } from "../../data/mockData";
@@ -24,7 +25,7 @@ const { width } = Dimensions.get("window");
 
 const OrganizationsScreen = ({ navigation }) => {
   const { user, profile } = useAuth();
-  const { theme } = useApp();
+  // const { theme: themeApp } = useApp();
 
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [organizations, setOrganizations] = useState([]);
@@ -154,8 +155,8 @@ const OrganizationsScreen = ({ navigation }) => {
             styles.filterModal,
             {
               backgroundColor: "#FFFFFF",
-              borderColor: "#E2E8F0",
-              shadowColor: "rgba(15, 23, 42, 0.08)",
+              borderColor: theme.colors.border,
+              shadowColor: theme.colors.shadow,
             },
             ,
           ]}
@@ -183,7 +184,7 @@ const OrganizationsScreen = ({ navigation }) => {
                     borderColor: "#0F172A",
                   },
                   {
-                    borderColor: "#E2E8F0",
+                    borderColor: theme.colors.border,
                     backgroundColor:
                       selectedCategory === category.id
                         ? "#0F172A" + "15"
@@ -227,7 +228,7 @@ const OrganizationsScreen = ({ navigation }) => {
                 styles.filterModalButton,
                 styles.clearButton,
                 {
-                  borderColor: "#E2E8F0",
+                  borderColor: theme.colors.border,
                   backgroundColor: "#F8FAFC",
                 },
               ]}
@@ -265,8 +266,8 @@ const OrganizationsScreen = ({ navigation }) => {
         styles.orgCard,
         {
           backgroundColor: "#FFFFFF",
-          borderColor: "#E2E8F0",
-          shadowColor: "rgba(15, 23, 42, 0.08)",
+          borderColor: theme.colors.border,
+          shadowColor: theme.colors.shadow,
         },
       ]}
     >
@@ -306,7 +307,7 @@ const OrganizationsScreen = ({ navigation }) => {
               item.user_is_member
                 ? {
                     backgroundColor: "#F8FAFC",
-                    borderColor: "#E2E8F0",
+                    borderColor: theme.colors.border,
                     borderWidth: 1,
                   }
                 : { backgroundColor: "#0F172A" },
@@ -327,7 +328,10 @@ const OrganizationsScreen = ({ navigation }) => {
 
           {item.user_is_member && profile?.is_admin && (
             <TouchableOpacity
-              style={[styles.createEventButton, { backgroundColor: "#38BDF8" }]}
+              style={[
+                styles.createEventButton,
+                { backgroundColor: theme.colors.secondary },
+              ]}
               onPress={() =>
                 navigation.navigate("CreateEvent", { organizationId: item.id })
               }
@@ -343,7 +347,7 @@ const OrganizationsScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: "#FFFFFF" }]}>
-      <StatusBar style={theme === "dark" ? "light" : "dark"} />
+      {/* <StatusBar style={themeApp === "dark" ? "light" : "dark"} /> */}
 
       <View style={styles.content}>
         {/* Header */}
@@ -415,14 +419,19 @@ const OrganizationsScreen = ({ navigation }) => {
           styles.floatingFilterButton,
           {
             backgroundColor: "#0F172A",
-            shadowColor: "rgba(15, 23, 42, 0.08)",
+            shadowColor: theme.colors.shadow,
           },
         ]}
         onPress={() => setShowFilterModal(true)}
       >
         <MaterialIcons name="tune" size={24} color="white" />
         {getActiveFilterCount() > 0 && (
-          <View style={[styles.filterBadge, { backgroundColor: "#84CC16" }]}>
+          <View
+            style={[
+              styles.filterBadge,
+              { backgroundColor: theme.colors.accent },
+            ]}
+          >
             <Text style={styles.filterBadgeText}>{getActiveFilterCount()}</Text>
           </View>
         )}

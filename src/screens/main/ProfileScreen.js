@@ -14,10 +14,16 @@ import { StatusBar } from "expo-status-bar";
 
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppContext";
+import { theme } from "../../styles/theme";
 
 const ProfileScreen = ({ navigation }) => {
   const { user, profile, signOut } = useAuth();
-  const { theme, toggleTheme, notifications, updateNotifications } = useApp();
+  const {
+    theme: themeApp,
+    toggleTheme,
+    notifications,
+    updateNotifications,
+  } = useApp();
 
   const handleLogout = () => {
     Alert.alert("Sign Out", "Are you sure you want to sign out?", [
@@ -28,7 +34,7 @@ const ProfileScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: "#FFFFFF" }]}>
-      <StatusBar style={theme === "dark" ? "light" : "dark"} />
+      {/* <StatusBar style={themeApp === "dark" ? "light" : "dark"} /> */}
 
       <ScrollView style={styles.content}>
         {/* Profile Header */}
@@ -51,7 +57,7 @@ const ProfileScreen = ({ navigation }) => {
           <View style={styles.settingItem}>
             <View style={styles.settingLeft}>
               <MaterialIcons
-                name={theme === "dark" ? "dark-mode" : "light-mode"}
+                name={themeApp === "dark" ? "dark-mode" : "light-mode"}
                 size={24}
                 color={"#0F172A"}
               />
@@ -60,10 +66,10 @@ const ProfileScreen = ({ navigation }) => {
               </Text>
             </View>
             <Switch
-              value={theme === "dark"}
+              value={themeApp === "dark"}
               onValueChange={toggleTheme}
               trackColor={{
-                false: "#E2E8F0",
+                false: theme.colors.border,
                 true: "#0F172A",
               }}
               thumbColor={"#FFFFFF"}
@@ -103,7 +109,10 @@ const ProfileScreen = ({ navigation }) => {
 
         {/* Sign Out Button */}
         <TouchableOpacity
-          style={[styles.signOutButton, { backgroundColor: "#EF4444" }]}
+          style={[
+            styles.signOutButton,
+            { backgroundColor: theme.colors.error },
+          ]}
           onPress={handleLogout}
         >
           <MaterialIcons name="logout" size={20} color="white" />

@@ -17,6 +17,7 @@ import { StatusBar } from "expo-status-bar";
 
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppContext";
+import { theme } from "../../styles/theme";
 
 import { eventApi } from "../../supabase/api";
 
@@ -24,7 +25,7 @@ const { width } = Dimensions.get("window");
 
 const EventsScreen = ({ navigation }) => {
   const { user, profile } = useAuth();
-  const { theme, savedEvents, saveEvent, removeEvent } = useApp();
+  const { theme: themeApp, savedEvents, saveEvent, removeEvent } = useApp();
 
   const [events, setEvents] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -178,7 +179,7 @@ const EventsScreen = ({ navigation }) => {
   };
 
   const getStatusColor = (event) => {
-    if (event.user_has_rsvped) return "#10B981";
+    if (event.user_has_rsvped) return theme.colors.success;
     const eventDate = new Date(event.start_time);
     const today = new Date();
     if (eventDate < today) return "#475569";
@@ -248,7 +249,7 @@ const EventsScreen = ({ navigation }) => {
           style={[
             styles.rsvpButton,
             item.user_has_rsvped
-              ? { backgroundColor: "#10B981" }
+              ? { backgroundColor: theme.colors.success }
               : { backgroundColor: "#0F172A" },
           ]}
           onPress={() => handleRSVP(item)}
@@ -330,7 +331,7 @@ const EventsScreen = ({ navigation }) => {
             !selectedDate && {
               backgroundColor: "#0F172A",
             },
-            { borderColor: "#E2E8F0" },
+            { borderColor: theme.colors.border },
           ]}
           onPress={() => setSelectedDate(null)}
         >
@@ -356,7 +357,7 @@ const EventsScreen = ({ navigation }) => {
                 selectedDate.toDateString() === item.date.toDateString() && {
                   backgroundColor: "#0F172A",
                 },
-              { borderColor: "#E2E8F0" },
+              { borderColor: theme.colors.border },
             ]}
             onPress={() => setSelectedDate(item.date)}
           >
@@ -417,8 +418,8 @@ const EventsScreen = ({ navigation }) => {
             styles.filterModal,
             {
               backgroundColor: "#FFFFFF",
-              borderColor: "#E2E8F0",
-              shadowColor: "rgba(15, 23, 42, 0.08)",
+              borderColor: theme.colors.border,
+              shadowColor: theme.colors.shadow,
             },
             ,
           ]}
@@ -446,7 +447,7 @@ const EventsScreen = ({ navigation }) => {
                     borderColor: "#0F172A",
                   },
                   {
-                    borderColor: "#E2E8F0",
+                    borderColor: theme.colors.border,
                     backgroundColor:
                       selectedCategory === category.id
                         ? "#0F172A" + "15"
@@ -490,7 +491,7 @@ const EventsScreen = ({ navigation }) => {
                 styles.filterModalButton,
                 styles.clearButton,
                 {
-                  borderColor: "#E2E8F0",
+                  borderColor: theme.colors.border,
                   backgroundColor: "#F8FAFC",
                 },
               ]}
@@ -563,7 +564,7 @@ const EventsScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: "#FFFFFF" }]}>
-      <StatusBar style={theme === "dark" ? "light" : "dark"} />
+      {/* <StatusBar style={themeApp === "dark" ? "light" : "dark"} /> */}
 
       <View style={styles.content}>
         {renderHeader()}
@@ -597,15 +598,15 @@ const EventsScreen = ({ navigation }) => {
                 style={[
                   styles.activeFilterChip,
                   {
-                    backgroundColor: "#38BDF8" + "15",
-                    borderColor: "#38BDF8" + "30",
+                    backgroundColor: theme.colors.secondary + "15",
+                    borderColor: theme.colors.secondary + "30",
                   },
                 ]}
               >
                 <Text
                   style={[
                     styles.activeFilterText,
-                    { color: "#38BDF8" },
+                    { color: theme.colors.secondary },
                   ]}
                 >
                   {selectedDate.toLocaleDateString()}
@@ -617,7 +618,7 @@ const EventsScreen = ({ navigation }) => {
                   <MaterialIcons
                     name="close"
                     size={16}
-                    color={"#38BDF8"}
+                    color={theme.colors.secondary}
                   />
                 </TouchableOpacity>
               </View>
@@ -651,7 +652,7 @@ const EventsScreen = ({ navigation }) => {
           styles.floatingFilterButton,
           {
             backgroundColor: "#0F172A",
-            shadowColor: "rgba(15, 23, 42, 0.08)",
+            shadowColor: theme.colors.shadow,
           },
           ,
         ]}
@@ -662,7 +663,7 @@ const EventsScreen = ({ navigation }) => {
           <View
             style={[
               styles.filterBadge,
-              { backgroundColor: "#84CC16" },
+              { backgroundColor: theme.colors.accent },
             ]}
           >
             <Text style={styles.filterBadgeText}>{getActiveFilterCount()}</Text>
@@ -857,7 +858,7 @@ const styles = StyleSheet.create({
     maxHeight: "80%",
     backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: "#E2E8F0",
+    borderColor: theme.colors.border,
     borderRadius: 16,
     padding: 16,
   },
@@ -883,7 +884,7 @@ const styles = StyleSheet.create({
   filterOption: {
     padding: 12,
     borderWidth: 2,
-    borderColor: "#E2E8F0",
+    borderColor: theme.colors.border,
     borderRadius: 8,
     marginBottom: 8,
   },
@@ -904,7 +905,7 @@ const styles = StyleSheet.create({
   filterModalButton: {
     padding: 12,
     borderWidth: 2,
-    borderColor: "#E2E8F0",
+    borderColor: theme.colors.border,
     borderRadius: 8,
   },
   clearButton: {
@@ -926,7 +927,7 @@ const styles = StyleSheet.create({
   activeFilterChip: {
     padding: 8,
     borderWidth: 2,
-    borderColor: "#E2E8F0",
+    borderColor: theme.colors.border,
     borderRadius: 20,
   },
   activeFilterText: {

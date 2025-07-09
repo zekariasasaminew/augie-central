@@ -1,18 +1,23 @@
 import React from "react";
 import { Text, StyleSheet, SafeAreaView, ScrollView } from "react-native";
 import { useApp } from "../../contexts/AppContext";
+import { theme } from "../../styles/theme";
 
 const OrganizationDetailScreen = ({ route }) => {
-  const { theme } = useApp();
+  // const { theme: themeApp } = useApp();
   const { organization } = route.params || {};
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: "#FFFFFF" }]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
       <ScrollView style={styles.content}>
-        <Text style={[styles.title, { color: "#0F172A" }]}>
+        <Text style={[styles.title, { color: theme.colors.text }]}>
           {organization?.name || "Organization"}
         </Text>
-        <Text style={[styles.description, { color: "#475569" }]}>
+        <Text
+          style={[styles.description, { color: theme.colors.textSecondary }]}
+        >
           {organization?.description || "Organization details"}
         </Text>
       </ScrollView>
