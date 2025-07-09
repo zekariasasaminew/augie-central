@@ -15,13 +15,14 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppContext";
+import { theme } from "../../styles/theme";
 
 const { width } = Dimensions.get("window");
 
 const AnnouncementDetailScreen = ({ route, navigation }) => {
   const { announcement } = route.params;
   const { user, profile } = useAuth();
-  const { theme } = useApp();
+  // const { theme: themeApp } = useApp();
 
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString("en-US", {
@@ -53,7 +54,7 @@ const AnnouncementDetailScreen = ({ route, navigation }) => {
     <SafeAreaView
       style={[commonStyles.safeArea, { backgroundColor: "#FFFFFF" }]}
     >
-      <StatusBar style={theme === "dark" ? "light" : "dark"} />
+      {/* <StatusBar style={themeApp === "dark" ? "light" : "dark"} /> */}
 
       {/* Header */}
       <View style={styles.header}>
@@ -82,7 +83,7 @@ const AnnouncementDetailScreen = ({ route, navigation }) => {
             styles.authorSection,
             {
               backgroundColor: "#F8FAFC",
-              borderColor: "#E2E8F0",
+              borderColor: theme.colors.border,
             },
           ]}
         >
@@ -148,8 +149,8 @@ const AnnouncementDetailScreen = ({ route, navigation }) => {
             styles.contentSection,
             {
               backgroundColor: "#FFFFFF",
-              borderColor: "#E2E8F0",
-              shadowColor: "rgba(15, 23, 42, 0.08)",
+              borderColor: theme.colors.border,
+              shadowColor: theme.colors.shadow,
             },
             ,
           ]}
@@ -165,8 +166,8 @@ const AnnouncementDetailScreen = ({ route, navigation }) => {
             style={[
               styles.eventSection,
               {
-                backgroundColor: "#84CC16" + "10",
-                borderColor: "#84CC16" + "30",
+                backgroundColor: theme.colors.accent + "10",
+                borderColor: theme.colors.accent + "30",
               },
             ]}
           >
@@ -174,14 +175,9 @@ const AnnouncementDetailScreen = ({ route, navigation }) => {
               <MaterialIcons
                 name="event"
                 size={24}
-                color={"#84CC16"}
+                color={theme.colors.accent}
               />
-              <Text
-                style={[
-                  styles.eventTitle,
-                  { color: "#84CC16" },
-                ]}
-              >
+              <Text style={[styles.eventTitle, { color: theme.colors.accent }]}>
                 Event Details
               </Text>
             </View>
@@ -215,8 +211,8 @@ const AnnouncementDetailScreen = ({ route, navigation }) => {
               styles.linksSection,
               {
                 backgroundColor: "#FFFFFF",
-                borderColor: "#E2E8F0",
-                shadowColor: "rgba(15, 23, 42, 0.08)",
+                borderColor: theme.colors.border,
+                shadowColor: theme.colors.shadow,
               },
               ,
             ]}
@@ -225,7 +221,7 @@ const AnnouncementDetailScreen = ({ route, navigation }) => {
               <MaterialIcons
                 name="link"
                 size={20}
-                color={"#38BDF8"}
+                color={theme.colors.secondary}
               />
               <Text style={[styles.linksSectionTitle, { color: "#0F172A" }]}>
                 Related Links
@@ -238,7 +234,7 @@ const AnnouncementDetailScreen = ({ route, navigation }) => {
                   styles.linkItem,
                   {
                     backgroundColor: "#F8FAFC",
-                    borderColor: "#E2E8F0",
+                    borderColor: theme.colors.border,
                   },
                 ]}
                 onPress={() => handleLinkPress(link.url)}
@@ -247,13 +243,13 @@ const AnnouncementDetailScreen = ({ route, navigation }) => {
                   <MaterialIcons
                     name="open-in-new"
                     size={18}
-                    color={"#38BDF8"}
+                    color={theme.colors.secondary}
                   />
                   <View style={styles.linkTextContainer}>
                     <Text
                       style={[
                         styles.linkTitle,
-                        { color: "#38BDF8" },
+                        { color: theme.colors.secondary },
                       ]}
                     >
                       {link.title || link.url}
@@ -284,8 +280,8 @@ const AnnouncementDetailScreen = ({ route, navigation }) => {
               styles.attachmentsSection,
               {
                 backgroundColor: "#FFFFFF",
-                borderColor: "#E2E8F0",
-                shadowColor: "rgba(15, 23, 42, 0.08)",
+                borderColor: theme.colors.border,
+                shadowColor: theme.colors.shadow,
               },
               ,
             ]}
@@ -294,7 +290,7 @@ const AnnouncementDetailScreen = ({ route, navigation }) => {
               <MaterialIcons
                 name="attachment"
                 size={20}
-                color={"#F59E0B"}
+                color={theme.colors.warning}
               />
               <Text
                 style={[styles.attachmentsSectionTitle, { color: "#0F172A" }]}
@@ -309,7 +305,7 @@ const AnnouncementDetailScreen = ({ route, navigation }) => {
                   styles.attachmentItem,
                   {
                     backgroundColor: "#F8FAFC",
-                    borderColor: "#E2E8F0",
+                    borderColor: theme.colors.border,
                   },
                 ]}
                 onPress={() => handleLinkPress(attachment.url)}
@@ -318,7 +314,7 @@ const AnnouncementDetailScreen = ({ route, navigation }) => {
                   <MaterialIcons
                     name="insert-drive-file"
                     size={24}
-                    color={"#F59E0B"}
+                    color={theme.colors.warning}
                   />
                   <View style={styles.attachmentTextContainer}>
                     <Text style={[styles.attachmentName, { color: "#0F172A" }]}>
@@ -341,7 +337,7 @@ const AnnouncementDetailScreen = ({ route, navigation }) => {
             styles.statsSection,
             {
               backgroundColor: "#F8FAFC",
-              borderColor: "#E2E8F0",
+              borderColor: theme.colors.border,
             },
           ]}
         >

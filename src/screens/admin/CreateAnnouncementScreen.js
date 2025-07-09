@@ -19,14 +19,16 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppContext";
+import { theme } from "../../styles/theme";
 
 import { announcementApi } from "../../supabase/api";
 
 const { width } = Dimensions.get("window");
 
 const CreateAnnouncementScreen = ({ navigation, route }) => {
+  console.log(theme);
   const { user, profile } = useAuth();
-  const { theme } = useApp();
+  // const { theme: themeApp } = useApp();
 
   const [formData, setFormData] = useState({
     title: "",
@@ -190,7 +192,7 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
     <SafeAreaView
       style={[commonStyles.safeArea, { backgroundColor: "#FFFFFF" }]}
     >
-      <StatusBar style={theme === "dark" ? "light" : "dark"} />
+      {/* <StatusBar style={themeApp === "dark" ? "light" : "dark"} /> */}
 
       {/* Header */}
       <View style={styles.header}>
@@ -224,8 +226,8 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                   styles.inputWrapper,
                   {
                     borderColor: errors.title
-                      ? "#EF4444"
-                      : "#E2E8F0",
+                      ? theme.colors.error
+                      : theme.colors.border,
                     backgroundColor: "#F8FAFC",
                   },
                 ]}
@@ -240,12 +242,7 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                 />
               </View>
               {errors.title && (
-                <Text
-                  style={[
-                    styles.errorText,
-                    { color: "#EF4444" },
-                  ]}
-                >
+                <Text style={[styles.errorText, { color: theme.colors.error }]}>
                   {errors.title}
                 </Text>
               )}
@@ -261,8 +258,8 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                   styles.inputWrapper,
                   {
                     borderColor: errors.short_description
-                      ? "#EF4444"
-                      : "#E2E8F0",
+                      ? theme.colors.error
+                      : theme.colors.border,
                     backgroundColor: "#F8FAFC",
                   },
                 ]}
@@ -281,12 +278,7 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                 />
               </View>
               {errors.short_description && (
-                <Text
-                  style={[
-                    styles.errorText,
-                    { color: "#EF4444" },
-                  ]}
-                >
+                <Text style={[styles.errorText, { color: theme.colors.error }]}>
                   {errors.short_description}
                 </Text>
               )}
@@ -308,7 +300,7 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                       formData.category === category.id && {
                         backgroundColor: "#0F172A",
                       },
-                      { borderColor: "#E2E8F0" },
+                      { borderColor: theme.colors.border },
                     ]}
                     onPress={() => updateField("category", category.id)}
                   >
@@ -348,8 +340,8 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                   styles.textAreaWrapper,
                   {
                     borderColor: errors.content
-                      ? "#EF4444"
-                      : "#E2E8F0",
+                      ? theme.colors.error
+                      : theme.colors.border,
                     backgroundColor: "#F8FAFC",
                   },
                 ]}
@@ -367,12 +359,7 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                 />
               </View>
               {errors.content && (
-                <Text
-                  style={[
-                    styles.errorText,
-                    { color: "#EF4444" },
-                  ]}
-                >
+                <Text style={[styles.errorText, { color: theme.colors.error }]}>
                   {errors.content}
                 </Text>
               )}
@@ -386,7 +373,7 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                   style={[
                     styles.inputWrapper,
                     {
-                      borderColor: "#E2E8F0",
+                      borderColor: theme.colors.border,
                       backgroundColor: "#F8FAFC",
                       flex: 1,
                     },
@@ -443,7 +430,7 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                 <MaterialIcons
                   name="event"
                   size={24}
-                  color={"#84CC16"}
+                  color={theme.colors.accent}
                 />
                 <View style={styles.eventToggleText}>
                   <Text style={[styles.eventToggleTitle, { color: "#0F172A" }]}>
@@ -460,8 +447,8 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                 value={formData.is_event}
                 onValueChange={(value) => updateField("is_event", value)}
                 trackColor={{
-                  false: "#E2E8F0",
-                  true: "#84CC16",
+                  false: theme.colors.border,
+                  true: theme.colors.accent,
                 }}
                 thumbColor={"#FFFFFF"}
               />
@@ -480,8 +467,8 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                       styles.inputWrapper,
                       {
                         borderColor: errors.event_date
-                          ? "#EF4444"
-                          : "#E2E8F0",
+                          ? theme.colors.error
+                          : theme.colors.border,
                         backgroundColor: "#F8FAFC",
                       },
                     ]}
@@ -508,10 +495,7 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                   </TouchableOpacity>
                   {errors.event_date && (
                     <Text
-                      style={[
-                        styles.errorText,
-                        { color: "#EF4444" },
-                      ]}
+                      style={[styles.errorText, { color: theme.colors.error }]}
                     >
                       {errors.event_date}
                     </Text>
@@ -528,8 +512,8 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                       styles.inputWrapper,
                       {
                         borderColor: errors.event_location
-                          ? "#EF4444"
-                          : "#E2E8F0",
+                          ? theme.colors.error
+                          : theme.colors.border,
                         backgroundColor: "#F8FAFC",
                       },
                     ]}
@@ -552,10 +536,7 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                   </View>
                   {errors.event_location && (
                     <Text
-                      style={[
-                        styles.errorText,
-                        { color: "#EF4444" },
-                      ]}
+                      style={[styles.errorText, { color: theme.colors.error }]}
                     >
                       {errors.event_location}
                     </Text>
@@ -573,7 +554,7 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                     style={[
                       styles.inputWrapper,
                       {
-                        borderColor: "#E2E8F0",
+                        borderColor: theme.colors.border,
                         backgroundColor: "#F8FAFC",
                         flex: 1,
                         marginRight: 8,
@@ -594,7 +575,7 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                     style={[
                       styles.inputWrapper,
                       {
-                        borderColor: "#E2E8F0",
+                        borderColor: theme.colors.border,
                         backgroundColor: "#F8FAFC",
                         flex: 1,
                       },
@@ -615,7 +596,7 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                 <TouchableOpacity
                   style={[
                     styles.addButton,
-                    { backgroundColor: "#38BDF8" },
+                    { backgroundColor: theme.colors.secondary },
                   ]}
                   onPress={addLink}
                 >
@@ -631,7 +612,7 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                         styles.linkItem,
                         {
                           backgroundColor: "#F8FAFC",
-                          borderColor: "#E2E8F0",
+                          borderColor: theme.colors.border,
                         },
                       ]}
                     >
@@ -639,7 +620,7 @@ const CreateAnnouncementScreen = ({ navigation, route }) => {
                         <MaterialIcons
                           name="link"
                           size={16}
-                          color={"#38BDF8"}
+                          color={theme.colors.secondary}
                         />
                         <View style={styles.linkItemText}>
                           <Text

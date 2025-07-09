@@ -18,13 +18,13 @@ import { StatusBar } from "expo-status-bar";
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppContext";
 
-import { commonStyles } from "../../styles/theme";
+import { commonStyles, theme } from "../../styles/theme";
 import { isValidEmail } from "../../data/mockData";
 import { authApi } from "../../supabase/api";
 
 const SignInScreen = ({ navigation }) => {
   const { signIn, loading: authLoading } = useAuth();
-  const { theme } = useApp();
+  // const { theme: themeApp } = useApp();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -126,15 +126,15 @@ const SignInScreen = ({ navigation }) => {
       createStyles({
         colors: {
           primary: "#0F172A",
-          secondary: "#38BDF8",
-          accent: "#84CC16",
+          secondary: theme.colors.secondary,
+          accent: theme.colors.accent,
           background: "#FFFFFF",
           surface: "#F8FAFC",
           card: "#FFFFFF",
           text: "#0F172A",
           textSecondary: "#475569",
-          border: "#E2E8F0",
-          notification: "#EF4444",
+          border: theme.colors.border,
+          notification: theme.colors.error,
         },
       }),
     []
@@ -144,7 +144,7 @@ const SignInScreen = ({ navigation }) => {
     <SafeAreaView
       style={[commonStyles.safeArea, { backgroundColor: "#FFFFFF" }]}
     >
-      <StatusBar style={theme === "dark" ? "light" : "dark"} />
+      {/* <StatusBar style={themeApp === "dark" ? "light" : "dark"} /> */}
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -184,7 +184,9 @@ const SignInScreen = ({ navigation }) => {
                 style={[
                   styles.inputWrapper,
                   {
-                    borderColor: errors.email ? "#EF4444" : "#E2E8F0",
+                    borderColor: errors.email
+                      ? theme.colors.error
+                      : theme.colors.border,
                     backgroundColor: "#F8FAFC",
                   },
                 ]}
@@ -207,12 +209,7 @@ const SignInScreen = ({ navigation }) => {
                 />
               </View>
               {errors.email && (
-                <Text
-                  style={[
-                    styles.errorText,
-                    { color: "#EF4444" },
-                  ]}
-                >
+                <Text style={[styles.errorText, { color: theme.colors.error }]}>
                   {errors.email}
                 </Text>
               )}
@@ -226,8 +223,8 @@ const SignInScreen = ({ navigation }) => {
                   styles.inputWrapper,
                   {
                     borderColor: errors.password
-                      ? "#EF4444"
-                      : "#E2E8F0",
+                      ? theme.colors.error
+                      : theme.colors.border,
                     backgroundColor: "#F8FAFC",
                   },
                 ]}
@@ -259,12 +256,7 @@ const SignInScreen = ({ navigation }) => {
                 </TouchableOpacity>
               </View>
               {errors.password && (
-                <Text
-                  style={[
-                    styles.errorText,
-                    { color: "#EF4444" },
-                  ]}
-                >
+                <Text style={[styles.errorText, { color: theme.colors.error }]}>
                   {errors.password}
                 </Text>
               )}
@@ -344,7 +336,7 @@ const SignInScreen = ({ navigation }) => {
                 style={[
                   styles.inputWrapper,
                   {
-                    borderColor: "#E2E8F0",
+                    borderColor: theme.colors.border,
                     backgroundColor: "#F8FAFC",
                   },
                 ]}
@@ -373,7 +365,7 @@ const SignInScreen = ({ navigation }) => {
                 style={[
                   styles.modalButton,
                   styles.modalCancelButton,
-                  { borderColor: "#E2E8F0" },
+                  { borderColor: theme.colors.border },
                 ]}
                 onPress={() => setShowForgotPassword(false)}
               >
@@ -528,7 +520,10 @@ const createStyles = (theme) =>
       width: "100%",
       borderRadius: 16,
       padding: 24,
-      ...theme.shadows.lg,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.16,
+      shadowRadius: 16,
+      elevation: 8,
     },
     modalHeader: {
       flexDirection: "row",

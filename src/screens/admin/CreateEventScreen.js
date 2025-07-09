@@ -17,14 +17,14 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppContext";
-import { commonStyles } from "../../styles/theme";
+import { theme, commonStyles } from "../../styles/theme";
 import { eventApi, organizationApi } from "../../supabase/api";
 
 const { width } = Dimensions.get("window");
 
 const CreateEventScreen = ({ navigation, route }) => {
   const { user, profile } = useAuth();
-  const { theme } = useApp();
+  // const { theme: themeApp } = useApp();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -159,7 +159,7 @@ const CreateEventScreen = ({ navigation, route }) => {
               styles.input,
               {
                 color: "#0F172A",
-                borderColor: "#E2E8F0",
+                borderColor: theme.colors.border,
               },
             ]}
             value={title}
@@ -175,7 +175,7 @@ const CreateEventScreen = ({ navigation, route }) => {
               styles.textArea,
               {
                 color: "#0F172A",
-                borderColor: "#E2E8F0",
+                borderColor: theme.colors.border,
               },
             ]}
             value={description}
@@ -192,7 +192,7 @@ const CreateEventScreen = ({ navigation, route }) => {
               styles.input,
               {
                 color: "#0F172A",
-                borderColor: "#E2E8F0",
+                borderColor: theme.colors.border,
               },
             ]}
             value={location}
@@ -207,7 +207,7 @@ const CreateEventScreen = ({ navigation, route }) => {
               styles.input,
               styles.dateButton,
               {
-                borderColor: "#E2E8F0",
+                borderColor: theme.colors.border,
                 backgroundColor: "#F8FAFC",
               },
             ]}
@@ -225,7 +225,7 @@ const CreateEventScreen = ({ navigation, route }) => {
               styles.input,
               styles.dateButton,
               {
-                borderColor: "#E2E8F0",
+                borderColor: theme.colors.border,
                 backgroundColor: "#F8FAFC",
               },
             ]}
@@ -269,7 +269,7 @@ const CreateEventScreen = ({ navigation, route }) => {
                     {
                       backgroundColor:
                         selectedOrgId === "" ? "#0F172A" : "#F8FAFC",
-                      borderColor: "#E2E8F0",
+                      borderColor: theme.colors.border,
                     },
                   ]}
                   onPress={() => setSelectedOrgId("")}
@@ -291,7 +291,7 @@ const CreateEventScreen = ({ navigation, route }) => {
                     {
                       backgroundColor:
                         selectedOrgId === org.id ? "#0F172A" : "#F8FAFC",
-                      borderColor: "#E2E8F0",
+                      borderColor: theme.colors.border,
                     },
                   ]}
                   onPress={() => setSelectedOrgId(org.id)}

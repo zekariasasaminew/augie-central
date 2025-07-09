@@ -16,12 +16,12 @@ import { StatusBar } from "expo-status-bar";
 
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppContext";
-import { commonStyles } from "../../styles/theme";
+import { theme, commonStyles } from "../../styles/theme";
 import { isValidEmail, isAugustanaEmail } from "../../data/mockData";
 
 const SignUpScreen = ({ navigation }) => {
   const { signUp, loading: authLoading } = useAuth();
-  const { theme } = useApp();
+  // const { theme: themeApp } = useApp();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -127,7 +127,7 @@ const SignUpScreen = ({ navigation }) => {
     <SafeAreaView
       style={[commonStyles.safeArea, { backgroundColor: "#FFFFFF" }]}
     >
-      <StatusBar style={theme === "dark" ? "light" : "dark"} />
+      {/* <StatusBar style={themeApp === "dark" ? "light" : "dark"} /> */}
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -161,8 +161,8 @@ const SignUpScreen = ({ navigation }) => {
                   styles.inputWrapper,
                   {
                     borderColor: errors.name
-                      ? "#EF4444"
-                      : "#E2E8F0",
+                      ? theme.colors.error
+                      : theme.colors.border,
                     backgroundColor: "#F8FAFC",
                   },
                 ]}
@@ -184,12 +184,7 @@ const SignUpScreen = ({ navigation }) => {
                 />
               </View>
               {errors.name && (
-                <Text
-                  style={[
-                    styles.errorText,
-                    { color: "#EF4444" },
-                  ]}
-                >
+                <Text style={[styles.errorText, { color: theme.colors.error }]}>
                   {errors.name}
                 </Text>
               )}
@@ -205,8 +200,8 @@ const SignUpScreen = ({ navigation }) => {
                   styles.inputWrapper,
                   {
                     borderColor: errors.email
-                      ? "#EF4444"
-                      : "#E2E8F0",
+                      ? theme.colors.error
+                      : theme.colors.border,
                     backgroundColor: "#F8FAFC",
                   },
                 ]}
@@ -229,12 +224,7 @@ const SignUpScreen = ({ navigation }) => {
                 />
               </View>
               {errors.email && (
-                <Text
-                  style={[
-                    styles.errorText,
-                    { color: "#EF4444" },
-                  ]}
-                >
+                <Text style={[styles.errorText, { color: theme.colors.error }]}>
                   {errors.email}
                 </Text>
               )}
@@ -249,8 +239,8 @@ const SignUpScreen = ({ navigation }) => {
                     styles.inputWrapper,
                     {
                       borderColor: errors.year
-                        ? "#EF4444"
-                        : "#E2E8F0",
+                        ? theme.colors.error
+                        : theme.colors.border,
                       backgroundColor: "#F8FAFC",
                     },
                   ]}
@@ -272,10 +262,7 @@ const SignUpScreen = ({ navigation }) => {
                 </View>
                 {errors.year && (
                   <Text
-                    style={[
-                      styles.errorText,
-                      { color: "#EF4444" },
-                    ]}
+                    style={[styles.errorText, { color: theme.colors.error }]}
                   >
                     {errors.year}
                   </Text>
@@ -289,8 +276,8 @@ const SignUpScreen = ({ navigation }) => {
                     styles.inputWrapper,
                     {
                       borderColor: errors.major
-                        ? "#EF4444"
-                        : "#E2E8F0",
+                        ? theme.colors.error
+                        : theme.colors.border,
                       backgroundColor: "#F8FAFC",
                     },
                   ]}
@@ -312,10 +299,7 @@ const SignUpScreen = ({ navigation }) => {
                 </View>
                 {errors.major && (
                   <Text
-                    style={[
-                      styles.errorText,
-                      { color: "#EF4444" },
-                    ]}
+                    style={[styles.errorText, { color: theme.colors.error }]}
                   >
                     {errors.major}
                   </Text>
@@ -331,8 +315,8 @@ const SignUpScreen = ({ navigation }) => {
                   styles.inputWrapper,
                   {
                     borderColor: errors.password
-                      ? "#EF4444"
-                      : "#E2E8F0",
+                      ? theme.colors.error
+                      : theme.colors.border,
                     backgroundColor: "#F8FAFC",
                   },
                 ]}
@@ -364,12 +348,7 @@ const SignUpScreen = ({ navigation }) => {
                 </TouchableOpacity>
               </View>
               {errors.password && (
-                <Text
-                  style={[
-                    styles.errorText,
-                    { color: "#EF4444" },
-                  ]}
-                >
+                <Text style={[styles.errorText, { color: theme.colors.error }]}>
                   {errors.password}
                 </Text>
               )}
@@ -385,8 +364,8 @@ const SignUpScreen = ({ navigation }) => {
                   styles.inputWrapper,
                   {
                     borderColor: errors.confirmPassword
-                      ? "#EF4444"
-                      : "#E2E8F0",
+                      ? theme.colors.error
+                      : theme.colors.border,
                     backgroundColor: "#F8FAFC",
                   },
                 ]}
@@ -420,12 +399,7 @@ const SignUpScreen = ({ navigation }) => {
                 </TouchableOpacity>
               </View>
               {errors.confirmPassword && (
-                <Text
-                  style={[
-                    styles.errorText,
-                    { color: "#EF4444" },
-                  ]}
-                >
+                <Text style={[styles.errorText, { color: theme.colors.error }]}>
                   {errors.confirmPassword}
                 </Text>
               )}
